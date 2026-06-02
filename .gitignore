@@ -1,0 +1,28 @@
+# Dependencias
+node_modules/
+
+# Artefactos de build / empaquetado
+dist/
+out/
+build/
+*.exe
+
+# Base de datos local (datos reales del usuario, no se versionan)
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# Logs y temporales
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Configuración local de editores/IDE
+.vscode/
+.idea/
+
+# Variables de entorno
+.env
+.env.local
