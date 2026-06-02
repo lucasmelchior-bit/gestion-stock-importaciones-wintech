@@ -140,17 +140,20 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 
 ## 7. >>> PRÓXIMO PASO (acá retomamos) <<<
 
-**Estado actual:** plan aprobado. Este registro creado. **Todavía NO se escribieron los archivos
-del arnés** (AGENTS.md, docs/, db/schema.sql, etc.).
+**Estado actual (2026-06-02):** ✅ **Fase 0 (arnés) COMPLETADA.** Toda la documentación y
+estructura fueron creadas y **subidas a GitHub** (rama `main`, repo
+`lucasmelchior-bit/Software-IA-Lucas`). Commit inicial: `docs(harness): estructura inicial del
+proyecto (Fase 0)`. Todavía **no hay código de la app**.
 
-**Lo que hay que hacer al retomar, en orden:**
+**Lo que hay que hacer al retomar → FASE 1 (esqueleto):**
 
-1. **Completar la Fase 0 (arnés):** crear todos los archivos del layout de la sección 5 con su
-   contenido (AGENTS.md, CLAUDE.md, README.md, los 10 docs de `docs/`, los 4 ADRs,
-   `db/schema.sql`, carpetas `src/*` con README, `.gitignore`, `.editorconfig`, `.nvmrc`).
-2. **Inicializar git** en `C:\Users\Usuario\Software-IA-Lucas`, primer commit y **push** al repo
-   de GitHub (ya autenticado con `gh`).
-3. Recién después, **Fase 1**: instalar Node y armar el esqueleto Electron + SQLite.
+1. **Instalar Node.js** (versión en `.nvmrc` = 22). En Windows: `winget install OpenJS.NodeJS.LTS`.
+2. **Scaffolding de Electron**: `package.json` con scripts (`dev`, `build`), procesos
+   `src/main` / `src/preload` / `src/renderer`, y `electron-builder` para el `.exe`.
+3. **Conexión a SQLite** (candidato: `better-sqlite3`), ejecutar la migración
+   `db/migrations/0001_init.sql`, y abrir una **ventana en blanco** que levante con `npm run dev`.
+4. Generar un `.exe` de prueba con `electron-builder`.
+5. Luego seguir el roadmap: Fase 2 (ABM), Fase 3 (stock), etc. Ver `docs/08-roadmap.md`.
 
-> Toda la información para hacerlo está en este archivo y en el plan
-> (`C:\Users\Usuario\.claude\plans\el-sistema-debe-ir-greedy-biscuit.md`).
+> Toda la información de diseño está en `docs/` (empezar por `AGENTS.md` → `docs/00-INDICE.md`).
+> El plan original sigue en `C:\Users\Usuario\.claude\plans\el-sistema-debe-ir-greedy-biscuit.md`.

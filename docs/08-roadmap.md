@@ -2,9 +2,9 @@
 
 ## Estado actual
 
-> **Fase 0 — Arnés: EN CURSO / completándose.**
-> Se está creando la documentación y estructura del proyecto (este conjunto de archivos).
-> Todavía **no hay código de la aplicación**.
+> **Fase 0 — Arnés: ✅ COMPLETADA (2026-06-02).**
+> Documentación y estructura creadas y subidas a GitHub (`main`). Todavía **no hay código de la
+> aplicación**. **Próximo paso: Fase 1 (esqueleto Electron + SQLite).**
 
 ## Fases
 
@@ -43,4 +43,5 @@ Respaldo/exportación del `.sqlite` (NFR-5), instalador final, datos de ejemplo 
 
 ## Historial
 
-- *(pendiente: completar al cerrar cada fase)*
+- **2026-06-02 — Fase 0 cerrada.** Arnés completo (AGENTS.md, docs/00-09, 4 ADRs, schema.sql +
+  migración 0001, seed, READMEs de src/*). Commit inicial y push a `main`.
