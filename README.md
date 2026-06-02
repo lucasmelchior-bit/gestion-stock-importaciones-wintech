@@ -25,28 +25,36 @@ la velocidad de venta de cada producto y la demora de importación (~3,5 meses).
 
 ## Estado del proyecto
 
-**Fase 0 — Arnés (documentación y estructura).** Todavía no hay código de la aplicación.
-Ver el avance y las fases en [`docs/08-roadmap.md`](docs/08-roadmap.md) y el estado/handoff en
-[`ESTADO.md`](ESTADO.md).
+**Fase 1 — Esqueleto: completada.** Ya hay app: ventana de Electron, base SQLite (vía el módulo
+integrado `node:sqlite`) con migraciones, y arranque con `npm run dev`. Ver el avance y las fases
+en [`docs/08-roadmap.md`](docs/08-roadmap.md) y el estado/handoff en [`ESTADO.md`](ESTADO.md).
 
-## Puesta en marcha (a partir de la Fase 1, cuando exista código)
-
-> Estos pasos aún no aplican porque el código se agrega en la Fase 1. Quedan documentados para
-> cuando corresponda.
+## Puesta en marcha
 
 ```powershell
-# 1. Instalar Node.js (versión en .nvmrc). En Windows, por ejemplo:
+# 1. Instalar Node.js (versión en .nvmrc → 24). En Windows:
 winget install OpenJS.NodeJS.LTS
 
 # 2. Instalar dependencias
 npm install
 
-# 3. Correr en modo desarrollo
+# 3. Correr en modo desarrollo (abre la ventana)
 npm run dev
 
-# 4. Generar el instalador .exe
+# 4. (Opcional) Aplicar/inspeccionar migraciones sin abrir la app
+npm run migrate
+
+# 5. Empaquetar la app de escritorio
 npm run build
 ```
+
+El paso 5 deja un ejecutable funcional en `dist/win-unpacked/`. Para generar además el **instalador
+`.exe`** (NSIS) hay que tener activado el **Modo de Desarrollador de Windows** (Configuración →
+Privacidad y seguridad → Para desarrolladores), porque el empaquetador necesita crear enlaces
+simbólicos. El instalador final se pule en la Fase 8.
+
+> El acceso a la base usa el módulo integrado `node:sqlite`, así que **no hace falta** instalar
+> compiladores de C++ ni herramientas de build. Ver `docs/adr/0004-sqlite-integrado-node.md`.
 
 ## Estructura del repositorio
 

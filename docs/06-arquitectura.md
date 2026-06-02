@@ -7,8 +7,9 @@
 
 - **Electron** — empaqueta la app de escritorio para Windows (instalador `.exe` con
   `electron-builder`).
-- **SQLite** — base de datos en un único archivo local. Acceso vía `better-sqlite3` (síncrono,
-  simple, ideal para single-user) — confirmar en Fase 1.
+- **SQLite** — base de datos en un único archivo local. Acceso vía el módulo **integrado
+  `node:sqlite`** (`DatabaseSync`, síncrono): sin dependencias nativas ni compilación. Decidido en
+  la Fase 1 (ver `adr/0004-sqlite-integrado-node.md`).
 - **HTML / CSS / JavaScript** — interfaz (renderer). Sin framework pesado en v1; si hace falta,
   se evalúa y se registra en un ADR.
 
@@ -53,3 +54,4 @@ llama a domain, escribe en la base, responde por IPC). Así la matemática se te
 - `adr/0001-stack-electron-sqlite.md` — por qué Electron + SQLite.
 - `adr/0002-politica-idioma.md` — UI/docs en español, código en inglés.
 - `adr/0003-enfoque-pronostico.md` — por qué EWMA y v1 simple.
+- `adr/0004-sqlite-integrado-node.md` — por qué `node:sqlite` en vez de `better-sqlite3`.

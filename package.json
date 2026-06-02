@@ -1,0 +1,37 @@
+{
+  "name": "gestion-stock-importaciones-wintech",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gestion de stock y recomendacion de importaciones para un distribuidor de insumos de aberturas de PVC (single-user, Windows, offline).",
+  "author": "Lucas Melchior",
+  "license": "UNLICENSED",
+  "main": "src/main/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "migrate": "node scripts/migrate.js",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.wintech.gestionstock",
+    "productName": "Gestion de Stock Wintech",
+    "files": [
+      "src/**/*",
+      "db/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.3.2",
+    "electron-builder": "^26.8.1"
+  }
+}

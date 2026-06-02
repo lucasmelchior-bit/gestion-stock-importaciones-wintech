@@ -6,7 +6,7 @@
 > conversado y decidido. Leelo entero antes de continuar. Resume el negocio, el objetivo del
 > software, las decisiones tomadas, el plan completo, y **qué falta hacer** (sección "PRÓXIMO PASO").
 
-_Última actualización de este registro: 2026-05-29._
+_Última actualización de este registro: 2026-06-02 (cierre de Fase 1)._
 
 ---
 
@@ -39,6 +39,7 @@ Un **programa de escritorio instalable en Windows, de un solo usuario** (Lucas),
 | **Tipo de app** | Programa de escritorio instalable en Windows (con ícono) |
 | **Usuarios** | Uno solo (Lucas). Sin login por ahora. |
 | **Stack** | **Electron** + **SQLite** (archivo local) + HTML/CSS/JS. Offline. |
+| **Motor SQLite** | Módulo integrado **`node:sqlite`** (no `better-sqlite3`). Sin dependencias nativas. Decidido en Fase 1 (ADR-0004). |
 | **Demora de importación (lead time)** | **105 días** base (3,5 meses) |
 | **Cadencia de compra** | "Cuando hace falta" → la app avisa cuándo pedir (sin periodicidad fija) |
 | **Perfiles** | Se venden **por barra entera**; herrajes/ruedas por **unidad/juego** (sin corte a medida) |
@@ -133,7 +134,9 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 - **Git** instalado (v2.54.0) vía winget — en `C:\Program Files\Git\cmd\git.exe`.
 - **GitHub CLI (gh)** instalado (v2.93.0) — en `C:\Program Files\GitHub CLI\gh.exe`.
   Sesión iniciada como **lucasmelchior-bit** (token con scopes repo, workflow, read:org, gist).
-- **Node.js NO está instalado** todavía (se instala en Fase 1).
+- **Node.js instalado** (Fase 1): **v24.16.0 LTS** vía `winget install OpenJS.NodeJS.LTS`
+  (winget ya no sirve la 22; por eso `.nvmrc` se actualizó a `24`). npm 11.x. Electron 42 embebe
+  Node 24, lo que habilita el módulo integrado `node:sqlite`.
 - Repo GitHub: `https://github.com/lucasmelchior-bit/gestion-stock-importaciones-wintech`.
 - Nota de PATH: en una terminal nueva, refrescar con:
   `$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")`
@@ -142,20 +145,39 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 
 ## 7. >>> PRÓXIMO PASO (acá retomamos) <<<
 
-**Estado actual (2026-06-02):** ✅ **Fase 0 (arnés) COMPLETADA.** Toda la documentación y
-estructura fueron creadas y **subidas a GitHub** (rama `main`, repo
-`lucasmelchior-bit/gestion-stock-importaciones-wintech`). Commit inicial: `docs(harness): estructura inicial del
-proyecto (Fase 0)`. Todavía **no hay código de la app**.
+**Estado actual (2026-06-02):** ✅ **Fase 1 (esqueleto) COMPLETADA.** (Fase 0/arnés ya estaba
+cerrada y subida a `main`.)
 
-**Lo que hay que hacer al retomar → FASE 1 (esqueleto):**
+**Lo que se hizo en Fase 1:**
 
-1. **Instalar Node.js** (versión en `.nvmrc` = 22). En Windows: `winget install OpenJS.NodeJS.LTS`.
-2. **Scaffolding de Electron**: `package.json` con scripts (`dev`, `build`), procesos
-   `src/main` / `src/preload` / `src/renderer`, y `electron-builder` para el `.exe`.
-3. **Conexión a SQLite** (candidato: `better-sqlite3`), ejecutar la migración
-   `db/migrations/0001_init.sql`, y abrir una **ventana en blanco** que levante con `npm run dev`.
-4. Generar un `.exe` de prueba con `electron-builder`.
-5. Luego seguir el roadmap: Fase 2 (ABM), Fase 3 (stock), etc. Ver `docs/08-roadmap.md`.
+1. ✅ Node.js **24.16.0 LTS** instalado; `.nvmrc` actualizado a `24`.
+2. ✅ Scaffolding de Electron: `package.json` con scripts (`dev`, `start`, `migrate`, `build`),
+   y los tres procesos:
+   - `src/main/main.js` — ventana, ciclo de vida, abre la base y registra IPC (`app:info`).
+   - `src/main/db.js` — capa de datos: abre SQLite y corre migraciones append-only (idempotente),
+     con tabla de control `schema_migrations`. **Agnóstica de Electron** (testeable en Node puro).
+   - `src/preload/preload.js` — `contextBridge` expone `window.api` (única superficie IPC).
+   - `src/renderer/` — `index.html` + `renderer.js` + `labels.js` (textos en español centralizados)
+     + `styles.css`. Pantalla de bienvenida que muestra versiones, ruta de la base y conteos.
+3. ✅ **Motor SQLite: `node:sqlite` integrado** (no `better-sqlite3`) → sin dependencias nativas
+   ni compiladores. Ver **ADR-0004**. La migración `0001_init.sql` corre OK (`npm run migrate`
+   como smoke test, y también al abrir la app).
+4. ✅ `npm run dev` abre la ventana sin errores. `npm run build` empaqueta un ejecutable funcional
+   en `dist/win-unpacked/` (verificado: arranca standalone).
+
+**Pendiente menor (no bloquea):** el **instalador NSIS** (`.exe` instalable) requiere activar el
+**Modo de Desarrollador de Windows** (Configuración → Privacidad y seguridad → Para
+desarrolladores) para que el empaquetador cree los symlinks que necesita. Se completa en Fase 8.
+
+**Lo que hay que hacer al retomar → FASE 2 (datos maestros + ABM, FR-1/FR-7):**
+
+1. ABM de **productos** (perfiles por barra; herrajes/ruedas por unidad — ver glosario y unidades),
+   **proveedores**, **marcas** y **clientes**.
+2. Patrón a seguir: el renderer pide por IPC (`window.api.*`) → handler en `main` → consulta a la
+   base vía `db`. Sumar canales nuevos en `preload.js` (documentar cada uno) y textos en
+   `labels.js`. **Sin lógica de negocio en main**: cuando aparezca cálculo, va a `src/domain/`.
+3. Si el esquema cambia, **nueva migración** `db/migrations/0002_*.sql` (append-only; nunca editar
+   la 0001) y reflejarlo en `docs/09-diccionario-datos.md`.
 
 > Toda la información de diseño está en `docs/` (empezar por `AGENTS.md` → `docs/00-INDICE.md`).
 > El plan original sigue en `C:\Users\Usuario\.claude\plans\el-sistema-debe-ir-greedy-biscuit.md`.

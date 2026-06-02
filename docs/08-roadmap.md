@@ -2,9 +2,10 @@
 
 ## Estado actual
 
-> **Fase 0 — Arnés: ✅ COMPLETADA (2026-06-02).**
-> Documentación y estructura creadas y subidas a GitHub (`main`). Todavía **no hay código de la
-> aplicación**. **Próximo paso: Fase 1 (esqueleto Electron + SQLite).**
+> **Fase 1 — Esqueleto: ✅ COMPLETADA (2026-06-02).**
+> Node 24 instalado, scaffolding de Electron (`main`/`preload`/`renderer`), capa de datos sobre
+> `node:sqlite` con runner de migraciones append-only, migración `0001_init` corriendo y ventana
+> de bienvenida que levanta con `npm run dev`. **Próximo paso: Fase 2 (datos maestros + ABM).**
 
 ## Fases
 
@@ -13,7 +14,7 @@ Estructura de carpetas, `AGENTS.md` + `CLAUDE.md` + `README.md`, `docs/00–09`,
 `db/schema.sql`, `.gitignore`/`.editorconfig`/`.nvmrc`. `git init` + commit + push al repo.
 **Sin código de app.**
 
-### Fase 1 — Esqueleto
+### Fase 1 — Esqueleto ✅
 Instalar Node.js (versión en `.nvmrc`), scaffolding de Electron (`main`/`preload`/`renderer`),
 conexión a SQLite, correr la migración `0001_init`, ventana en blanco. Objetivo: `npm run dev`
 funciona y `electron-builder` genera un `.exe` de prueba.
@@ -45,3 +46,8 @@ Respaldo/exportación del `.sqlite` (NFR-5), instalador final, datos de ejemplo 
 
 - **2026-06-02 — Fase 0 cerrada.** Arnés completo (AGENTS.md, docs/00-09, 4 ADRs, schema.sql +
   migración 0001, seed, READMEs de src/*). Commit inicial y push a `main`.
+- **2026-06-02 — Fase 1 cerrada.** Node 24 instalado; scaffolding de Electron (main/preload/
+  renderer); capa de datos sobre `node:sqlite` con runner de migraciones append-only; migración
+  `0001_init` corriendo; ventana de bienvenida con `npm run dev`; ejecutable empaquetado en
+  `dist/win-unpacked/`. Decisión registrada en **ADR-0004** (`node:sqlite` en vez de
+  `better-sqlite3`). Instalador NSIS final queda para Fase 8.
