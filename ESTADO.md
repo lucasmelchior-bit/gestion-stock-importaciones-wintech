@@ -1,4 +1,6 @@
-# ESTADO DEL PROYECTO — Software-IA-Lucas
+# ESTADO DEL PROYECTO — Gestión de Stock e Importaciones Wintech
+
+> _(El proyecto se llamaba antes "Software-IA-Lucas"; renombrado el 2026-06-02.)_
 
 > **Para la próxima IA o persona que retome esto:** este archivo es el registro de todo lo
 > conversado y decidido. Leelo entero antes de continuar. Resume el negocio, el objetivo del
@@ -61,7 +63,7 @@ Por eso la **primera entrega (Fase 0)** es documentación autoexplicativa + estr
 ### Estructura de archivos del arnés (a crear en Fase 0)
 
 ```
-Software-IA-Lucas/
+gestion-stock-importaciones-wintech/
 ├── AGENTS.md                 # Entrada PRIMARIA para cualquier IA.
 ├── CLAUDE.md                 # Puntero fino a AGENTS.md.
 ├── README.md                 # Entrada humana: cómo instalar Node, correr en dev, generar el .exe.
@@ -132,7 +134,7 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 - **GitHub CLI (gh)** instalado (v2.93.0) — en `C:\Program Files\GitHub CLI\gh.exe`.
   Sesión iniciada como **lucasmelchior-bit** (token con scopes repo, workflow, read:org, gist).
 - **Node.js NO está instalado** todavía (se instala en Fase 1).
-- Repo GitHub: `https://github.com/lucasmelchior-bit/Software-IA-Lucas` (estaba **vacío**).
+- Repo GitHub: `https://github.com/lucasmelchior-bit/gestion-stock-importaciones-wintech`.
 - Nota de PATH: en una terminal nueva, refrescar con:
   `$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")`
 
@@ -142,7 +144,7 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 
 **Estado actual (2026-06-02):** ✅ **Fase 0 (arnés) COMPLETADA.** Toda la documentación y
 estructura fueron creadas y **subidas a GitHub** (rama `main`, repo
-`lucasmelchior-bit/Software-IA-Lucas`). Commit inicial: `docs(harness): estructura inicial del
+`lucasmelchior-bit/gestion-stock-importaciones-wintech`). Commit inicial: `docs(harness): estructura inicial del
 proyecto (Fase 0)`. Todavía **no hay código de la app**.
 
 **Lo que hay que hacer al retomar → FASE 1 (esqueleto):**

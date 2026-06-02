@@ -6,7 +6,7 @@
 
 ## Qué es este proyecto
 
-**Software-IA-Lucas** es un **programa de escritorio para Windows (un solo usuario)** que gestiona
+**Gestión de Stock e Importaciones Wintech** es un **programa de escritorio para Windows (un solo usuario)** que gestiona
 el **stock y los pedidos** de Lucas, un **importador/distribuidor argentino** de insumos para
 fabricar aberturas de PVC (perfiles **Wintech** y herrajes **Accado** del proveedor **Adopen**,
 Turquía; ruedas y accesorios de otros proveedores). Sus clientes son fabricantes de aberturas.

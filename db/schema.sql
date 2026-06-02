@@ -1,5 +1,5 @@
 -- =============================================================================
--- Software-IA-Lucas — Esquema canónico de la base de datos (SQLite)
+-- Gestión de Stock e Importaciones Wintech — Esquema canónico de la base de datos (SQLite)
 -- -----------------------------------------------------------------------------
 -- Fuente de verdad del esquema. Explicación en prosa: docs/09-diccionario-datos.md
 -- Reglas de negocio (matemática): docs/05-reglas-negocio.md

@@ -1,4 +1,4 @@
-# Software-IA-Lucas
+# Gestión de Stock e Importaciones Wintech
 
 Programa de escritorio para Windows que gestiona el **stock y los pedidos** de un importador/
 distribuidor de insumos para aberturas de PVC, y **recomienda cuándo y cuánto importar** según
