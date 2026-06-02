@@ -146,7 +146,19 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 ## 7. >>> PRÓXIMO PASO (acá retomamos) <<<
 
 **Estado actual (2026-06-02):** ✅ **Fase 1 (esqueleto) COMPLETADA.** (Fase 0/arnés ya estaba
-cerrada y subida a `main`.)
+cerrada y subida a `main`.) Commiteada en la rama **`feat/fase-1-esqueleto`** y pusheada a GitHub.
+
+**Pendientes operativos para retomar mañana (2026-06-03):**
+
+- 🔀 **Abrir el Pull Request** de `feat/fase-1-esqueleto` → `main` (o mergear) para integrar la
+  Fase 1. Link: https://github.com/lucasmelchior-bit/gestion-stock-importaciones-wintech/pull/new/feat/fase-1-esqueleto
+- 🎨 **Revisar el diseño de frontend** que trajo Lucas, sin versionar todavía:
+  `docs/FronEnd_Design/` y `docs/GESTION de Stock e Importaciones.zip` (probables mockups de la UI;
+  insumo para la Fase 2). Quedaron fuera del commit a propósito.
+- ⚙️ **Nota de entorno:** la instalación de Electron en esta PC quedó resuelta a mano (el
+  `postinstall` de npm dejó `dist/` incompleto; se extrajo el zip del cache con `tar` y se creó
+  `node_modules/electron/path.txt` con el texto `electron.exe`). Si algún día se borra
+  `node_modules` y `npm run dev` falla con `ENOENT path.txt`, repetir ese arreglo.
 
 **Lo que se hizo en Fase 1:**
 
