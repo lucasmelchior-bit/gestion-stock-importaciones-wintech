@@ -7,16 +7,21 @@
   "license": "UNLICENSED",
   "main": "src/main/main.js",
   "scripts": {
-    "dev": "electron .",
+    "dev": "concurrently -k -n vite,electron -c blue,green \"vite\" \"wait-on http-get://localhost:5173 && electron .\"",
     "start": "electron .",
     "migrate": "node scripts/migrate.js",
-    "build": "electron-builder"
+    "seed": "node scripts/seed.js",
+    "test": "node --test",
+    "build:renderer": "vite build",
+    "build": "vite build && electron-builder"
   },
   "build": {
     "appId": "com.wintech.gestionstock",
     "productName": "Gestion de Stock Wintech",
     "files": [
-      "src/**/*",
+      "src/main/**/*",
+      "src/preload/**/*",
+      "build/renderer/**/*",
       "db/**/*"
     ],
     "directories": {
@@ -31,7 +36,22 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "concurrently": "^10.0.3",
     "electron": "^42.3.2",
-    "electron-builder": "^26.8.1"
+    "electron-builder": "^26.8.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "wait-on": "^9.0.10"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.17.0"
   }
 }

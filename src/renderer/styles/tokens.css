@@ -1,0 +1,35 @@
+/* Tokens del design system "Jardín de San José".
+   Fuente de verdad: docs/FronEnd_Design/design_handoff_wintech/wintech-shell.css
+   No inventar colores nuevos; usar estas variables. */
+
+:root {
+  /* Paleta */
+  --bg: #F6F2E0;
+  --paper: #FFFFFE;
+  --paper-2: #EFE7CB;
+  --pastel: #F5C842;
+  --pastel-soft: #FCEFB4;
+  --ink: #29261B;
+  --ink-2: #5E5A33;
+  --ink-3: #9D8C45;
+  --line: #B5A560;
+  --line-2: #CFC178;
+  --line-soft: #E0D38E;
+  --primary: #1F3818;
+  --primary-2: #2E4D24;
+  --primary-soft: #DCE6CC;
+  --teal: #8AA63E;
+  --teal-soft: #E8F0CF;
+  --accent: #F5C842;
+  --accent-2: #F4A93A;
+  --accent-soft: #FCEFB4;
+  --lily: #FFFFFE;
+  --eq-from: #93B041;
+  --eq-to: #6E8530;
+  --ok: #5C8A1E;
+  --warn: #D89020;
+  --crit: #A03B1E;
+
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+}

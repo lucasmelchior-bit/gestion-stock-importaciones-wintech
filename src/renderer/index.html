@@ -2,36 +2,11 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' 'unsafe-inline'"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestion de Stock Wintech</title>
-    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <header class="hero">
-        <h1 id="app-title"></h1>
-        <p id="tagline" class="muted"></p>
-        <span id="phase-badge" class="badge"></span>
-      </header>
-
-      <section class="card">
-        <h2 id="env-heading"></h2>
-        <dl id="env-list" class="kv"></dl>
-      </section>
-
-      <section class="card">
-        <h2 id="data-heading"></h2>
-        <dl id="data-list" class="kv"></dl>
-      </section>
-
-      <footer>
-        <p id="next-step" class="muted"></p>
-      </footer>
-    </main>
-
-    <script type="module" src="renderer.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
   </body>
 </html>
