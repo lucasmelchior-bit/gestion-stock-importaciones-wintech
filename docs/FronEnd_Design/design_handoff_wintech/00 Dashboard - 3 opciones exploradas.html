@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Dashboard — 3 opciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAFAF7; --ink:#2C3E50; --ink-2:#54647A; --ink-3:#8896A6;
+    --line:#E6E4DD; --primary:#1e3a5f; --teal:#0B8A8F; --paper:#FFFFFF;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body,#root{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+function Frame({ src }) {
+  return <iframe src={src} style={{ width: "100%", height: "100%", border: "none", display: "block", background: "#fff" }} />;
+}
+
+function App() {
+  return (
+    <DesignCanvas title="Dashboard · 3 direcciones" subtitle="Mismo contenido, tres tonos. Abrí cualquiera en focus para verla a fondo.">
+      <DCSection id="overview" title="Tres direcciones para el Dashboard">
+        <DCArtboard id="v1" label="V1 · Profesional / Stripe-like" width={1440} height={1024}>
+          <Frame src="Dashboard.html" />
+        </DCArtboard>
+        <DCArtboard id="v2" label="V2 · Editorial / narrativo" width={1440} height={1024}>
+          <Frame src="Dashboard v2 Editorial.html" />
+        </DCArtboard>
+        <DCArtboard id="v3" label="V3 · Command center / dark dense" width={1600} height={900}>
+          <Frame src="Dashboard v3 Command Center.html" />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

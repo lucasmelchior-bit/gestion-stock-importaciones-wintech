@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Dashboard v6 (Jardín de San José)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* Paleta Jardín de San José: 5 colores naturales */
+    --bg:#FAFCF5;               /* verde pálido blanquecino (fondo) */
+    --paper:#FFFFFE;            /* blanco inmaculado (paneles) */
+    --paper-2:#F4F8E8;          /* verde pálido cremoso */
+    --pastel:#F5C842;           /* amarillo anaranjado (estámbre) */
+    --pastel-soft:#FCEFB4;      /* amarillo suave */
+    --ink:#1F2818;
+    --ink-2:#465038;
+    --ink-3:#7A8463;
+    --line:#7A8A5C;             /* verde musgo (l\u00edneas y bordes) */
+    --line-2:#B8C49A;
+    --primary:#1F3818;          /* verde robusto y oscuro */
+    --primary-2:#2E4D24;
+    --primary-soft:#DCE6CC;
+    --teal:#8AA63E;             /* verde amarillento */
+    --teal-soft:#E8F0CF;
+    --accent:#F5C842;           /* amarillo anaranjado vibrante */
+    --accent-2:#F4A93A;         /* anaranjado más cálido */
+    --lily:#FFFFFE;             /* blanco inmaculado */
+    --lily-stamen:#F5C842;
+    --ok:#5C8A1E;
+    --warn:#D89020;
+    --crit:#A03B1E;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body,#root{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#C5D199;border-radius:6px;border:2px solid var(--bg)}
+  .app{display:flex;min-height:100vh}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .content{padding:24px 28px 56px;max-width:1480px;margin:0 auto;width:100%}
+  .ph{display:flex;align-items:flex-end;gap:18px;margin-bottom:22px}
+  .ph h1{font-size:26px;letter-spacing:-0.02em;font-weight:600;margin:0 0 4px}
+  .ph .greet{color:var(--ink-3);font-size:13px}
+  .ph .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--pastel-soft);font-size:11.5px;color:var(--ink-2);font-weight:500}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .row3{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  .sect{display:flex;align-items:baseline;gap:10px;margin:34px 0 12px}
+  .sect h2{margin:0;font-size:14px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-3)}
+  .sect .h-line{flex:1;height:1px;background:var(--line)}
+
+  /* Sidebar */
+  .sb{width:248px;flex:0 0 248px;background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;padding:16px 12px;position:relative}
+  .sb::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%)}
+  .sb-head{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line-2);margin-bottom:12px}
+  .sb-logo{width:32px;height:32px;border-radius:8px;background:var(--primary);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;position:relative;overflow:hidden}
+  .sb-logo svg{position:absolute;inset:0;width:100%;height:100%}
+  .sb-brand{font-weight:600;font-size:13.5px;letter-spacing:-0.005em;line-height:1.1}
+  .sb-brand small{display:block;color:var(--ink-3);font-weight:400;font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;margin-top:3px}
+  .sb-search{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;color:var(--ink-3);margin-bottom:14px;background:var(--paper-2);cursor:pointer;font-size:12.5px}
+  .sb-kbd{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--line);padding:1px 5px;border-radius:4px;background:#fff}
+  .sb-group{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);padding:12px 8px 6px;font-weight:600}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;color:var(--ink);cursor:pointer;font-size:13;font-weight:500}
+  .sb-item:hover{background:var(--line-2)}
+  .sb-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600;box-shadow:inset 2px 0 0 var(--accent)}
+  .sb-item .lbl{flex:1}
+  .sb-item .badge{font-family:var(--mono);font-size:10px;background:var(--crit);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600}
+  .sb-item .badge.amber{background:var(--warn)}
+  .sb-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:10px}
+  .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent-2),var(--primary));color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;border:1.5px solid var(--lily)}
+
+  /* Topbar */
+  .tb{display:flex;align-items:center;height:56px;padding:0 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg, var(--bg) 0%, var(--paper-2) 100%);gap:14px}
+  .tb-crumbs{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:12px;letter-spacing:0.02em;text-transform:uppercase;font-weight:500}
+  .tb-search{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:7px;color:var(--ink-3);background:#FFF;cursor:pointer;font-size:12.5px;min-width:240px}
+  .tb-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+  .tb-btn:hover{background:var(--pastel-soft);border-color:var(--accent)}
+  .tb-btn.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+  .tb-btn.primary:hover{background:var(--primary-2)}
+
+  /* KPI */
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:relative;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .kpi.featured{background:linear-gradient(180deg, var(--pastel-soft) 0%, var(--paper) 70%)}
+  .kpi .lbl{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600}
+  .kpi .lbl .acc{width:4px;height:4px;border-radius:50%}
+  .kpi .v{display:flex;align-items:baseline;gap:6px}
+  .kpi .v .num{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-0.01em;color:var(--ink)}
+  .kpi .v .u{font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+  .kpi .sub{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:10px}
+  .kpi .delta{font-family:var(--mono);font-size:12px;font-weight:500}
+  .kpi .delta.up{color:var(--ok)}
+  .kpi .delta.dn{color:var(--crit)}
+
+  /* Equilibrium card */
+  .eq{background:linear-gradient(180deg, #93B041 0%, #6E8530 100%);border-radius:10px;padding:20px 22px;color:var(--lily);display:flex;flex-direction:column;gap:14px;grid-column:span 2;position:relative;overflow:hidden}
+  .eq::before{content:"";position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle, rgba(232,197,71,0.18) 0%, transparent 60%);pointer-events:none}
+  .eq .lily-mark{position:absolute;bottom:-8px;right:8px;width:90px;height:90px;opacity:0.08;pointer-events:none}
+  .eq .lbl{font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;opacity:0.7;display:flex;align-items:center;gap:6px}
+  .eq .desc{font-size:14px;opacity:0.85;line-height:1.4}
+  .eq .desc b{font-family:var(--mono);color:#fff;font-weight:600}
+  .eq .pct{margin-left:auto;text-align:right}
+  .eq .pct .big{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-0.01em}
+  .eq .pct .big .u{font-size:16px;opacity:0.6}
+  .eq .pct .small{font-size:11px;opacity:0.6;font-family:var(--mono)}
+  .eq .bar{width:100%;height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;position:relative}
+  .eq .bar > div{height:100%;background:linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);border-radius:3px;box-shadow:0 0 8px rgba(232,197,71,0.4)}
+  .eq .bar::after{content:"";position:absolute;left:73%;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,0.4)}
+  .eq .legend{display:flex;justify-content:space-between;font-size:11.5px;font-family:var(--mono);opacity:0.75}
+  .eq .legend b{color:#fff;font-weight:600}
+
+  /* Panels */
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .ph-h{background:linear-gradient(180deg, var(--pastel-soft) 0%, var(--paper) 100%)}
+  .ph-h{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line-2);gap:10px}
+  .ph-h h3{margin:0;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-0.005em}
+  .ph-h .sub{font-size:11.5px;color:var(--ink-3)}
+  .ph-h .grow{flex:1}
+  .ph-h .lk{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+
+  /* Import row */
+  .imp-row{padding:16px 18px;border-bottom:1px solid var(--line-2);display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+  .imp-row:last-child{border-bottom:none}
+  .imp-row .glyph{width:36px;height:36px;border-radius:8px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center}
+  .imp-row .code{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink)}
+  .imp-row .tag{font-size:11px;color:var(--primary);background:var(--primary-soft);padding:1px 7px;border-radius:4px;font-weight:500;text-transform:capitalize}
+  .imp-row .meta{display:flex;gap:14px;font-size:11.5px;color:var(--ink-3);margin-top:8px;font-family:var(--mono)}
+  .imp-row .meta b{color:var(--ink-2);font-weight:500}
+  .timeline{display:flex;align-items:center;gap:3px;margin-top:8px}
+  .timeline > div{flex:1;display:flex;flex-direction:column;gap:3px}
+  .timeline > div > .bar{height:3px;border-radius:1px}
+  .timeline > div > .lbl{font-size:9px;font-family:var(--mono);letter-spacing:0.02em}
+  .eta-box{text-align:right}
+  .eta-box .l{font-size:11px;color:var(--ink-3);letter-spacing:0.04em;text-transform:uppercase;font-weight:600}
+  .eta-box .d{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink)}
+  .eta-box .r{font-size:11px;font-family:var(--mono)}
+
+  /* Stock crit */
+  .crit-row{padding:11px 18px;border-bottom:1px solid var(--line-2);display:grid;grid-template-columns:10px 1fr auto;gap:12px;align-items:center;cursor:pointer}
+  .crit-row:last-child{border-bottom:none}
+  .crit-row .dot{width:6px;height:6px;border-radius:50%}
+  .crit-row .name{font-size:13px;color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .crit-row .meta{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+
+  /* Activity */
+  .act-row{display:flex;gap:12px;padding:11px 18px;align-items:flex-start;border-bottom:1px solid var(--line-2)}
+  .act-row .ic-wrap{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:0 0 26px;margin-top:1px}
+  .act-row .body{flex:1;font-size:12.5px;color:var(--ink);line-height:1.4}
+  .act-row .ts{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+
+  /* Quick actions */
+  .qa{padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s}
+  .qa:hover{background:var(--pastel-soft);border-color:var(--accent);transform:translateY(-1px)}
+  .qa .qa-ic{background:var(--pastel-soft);color:var(--primary);border:1px solid var(--line)}
+  .qa .qa-ic{width:32px;height:32px;border-radius:7px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center}
+  .qa .qa-t{font-size:13px;font-weight:600;color:var(--ink)}
+  .qa .qa-s{font-size:11.5px;color:var(--ink-3);margin-top:1px}
+
+  svg.ic{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  @media (max-width:1280px){.kpis{grid-template-columns:repeat(3,1fr)}.row3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+const Ic = ({ children, size = 16, vb = "0 0 24 24" }) => (
+  <svg className="ic" width={size} height={size} viewBox={vb}>{children}</svg>
+);
+const IcGrid = (p) => <Ic {...p}><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></Ic>;
+const IcTruck = (p) => <Ic {...p}><path d="M3 7h13l3 4v6H3z"/><circle cx="7" cy="17" r="2"/><circle cx="16" cy="17" r="2"/></Ic>;
+const IcDoc = (p) => <Ic {...p}><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></Ic>;
+const IcBox = (p) => <Ic {...p}><path d="M3 7v10l9 4 9-4V7l-9-4z"/><path d="m3 7 9 4 9-4"/><path d="M12 11v10"/></Ic>;
+const IcCat = (p) => <Ic {...p}><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></Ic>;
+const IcLog = (p) => <Ic {...p}><path d="M3 6h18M3 12h18M3 18h12"/></Ic>;
+const IcChart = (p) => <Ic {...p}><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-7"/></Ic>;
+const IcBars = (p) => <Ic {...p}><rect x="4" y="10" width="3" height="10"/><rect x="10" y="6" width="3" height="14"/><rect x="16" y="13" width="3" height="7"/></Ic>;
+const IcClk = (p) => <Ic {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></Ic>;
+const IcGear = (p) => <Ic {...p}><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></Ic>;
+const IcShield = (p) => <Ic {...p}><path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/></Ic>;
+const IcSrch = (p) => <Ic {...p}><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></Ic>;
+const IcBell = (p) => <Ic {...p}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8z"/><path d="M10 21a2 2 0 0 0 4 0"/></Ic>;
+const IcPlus = (p) => <Ic {...p}><path d="M12 5v14M5 12h14"/></Ic>;
+const IcUp = (p) => <Ic {...p}><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></Ic>;
+const IcArrR = (p) => <Ic {...p}><path d="M5 12h14M13 6l6 6-6 6"/></Ic>;
+const IcChevR = (p) => <Ic {...p}><path d="m9 6 6 6-6 6"/></Ic>;
+const IcShip = (p) => <Ic {...p}><path d="M3 17h18l-2 4H5z"/><path d="M5 17V8h14v9"/></Ic>;
+const IcAnchor = (p) => <Ic {...p}><circle cx="12" cy="6" r="2"/><path d="M12 8v13M5 12h14"/></Ic>;
+const IcWh = (p) => <Ic {...p}><path d="M3 21V8l9-4 9 4v13"/><path d="M7 21v-8h10v8"/></Ic>;
+const IcSpk = (p) => <Ic {...p}><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></Ic>;
+const IcAlert = (p) => <Ic {...p}><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.01"/></Ic>;
+const IcUser = (p) => <Ic {...p}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></Ic>;
+
+function Sidebar({ active, onNav, onCmd }) {
+  return (
+    <aside className="sb">
+      <div className="sb-head">
+        <div className="sb-logo">W</div>
+        <div className="sb-brand">Wintech AR<small>Stock & Imports</small></div>
+      </div>
+      <div className="sb-search" onClick={onCmd}>
+        <IcSrch size={14} /><span style={{ flex: 1 }}>Buscar producto, importación…</span><span className="sb-kbd">⌘K</span>
+      </div>
+      <div className="sb-group">Operación</div>
+      <NavI I={IcGrid} l="Dashboard" k="Dashboard" {...{active, onNav}} />
+      <NavI I={IcTruck} l="Importaciones" k="Importaciones" badge="3" badgeKind="amber" {...{active, onNav}} />
+      <NavI I={IcDoc} l="Pedidos" k="Pedidos" {...{active, onNav}} />
+      <NavI I={IcBox} l="Stock & Alertas" k="Stock" badge="7" {...{active, onNav}} />
+      <div className="sb-group">Catálogo</div>
+      <NavI I={IcCat} l="Productos" k="Productos" {...{active, onNav}} />
+      <NavI I={IcLog} l="Proveedores logísticos" k="Proveedores" {...{active, onNav}} />
+      <div className="sb-group">Análisis</div>
+      <NavI I={IcChart} l="Rentabilidad" k="Rentabilidad" {...{active, onNav}} />
+      <NavI I={IcBars} l="Estadísticas" k="Stats" {...{active, onNav}} />
+      <NavI I={IcClk} l="Gastos operativos" k="Gastos" {...{active, onNav}} />
+      <div className="sb-group">Sistema</div>
+      <NavI I={IcGear} l="Configuración" k="Config" {...{active, onNav}} />
+      <NavI I={IcShield} l="Auditoría" k="Auditoria" {...{active, onNav}} />
+      <div className="sb-foot">
+        <div className="avatar">LP</div>
+        <div style={{ fontSize: 12 }}>Lucas P.<small style={{ display:"block", color:"var(--ink-3)", fontSize:10.5, marginTop:2 }}>Dueño · Córdoba</small></div>
+      </div>
+    </aside>
+  );
+}
+function NavI({ I, l, k, active, onNav, badge, badgeKind }) {
+  const map = {
+    Dashboard: "Dashboard v6 Jardin San Jose.html",
+    Importaciones: "Importaciones - Armar.html",
+    Pedidos: "Pedidos - Cargar PDF.html",
+    Stock: "Stock y Alertas.html",
+    Rentabilidad: "Rentabilidad.html",
+  };
+  const href = map[k] || "#";
+  return (
+    <a href={href} className={`sb-item ${active === k ? "active" : ""}`} style={{ textDecoration: "none" }} onClick={(e) => { if (href === "#") { e.preventDefault(); onNav && onNav(k); } }}>
+      <I size={16} /><span className="lbl">{l}</span>
+      {badge && <span className={`badge ${badgeKind === "amber" ? "amber" : ""}`}>{badge}</span>}
+    </a>
+  );
+}
+
+function App() {
+  const [active, setActive] = React.useState("Dashboard");
+  const today = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  return (
+    <div className="app">
+      <Sidebar active={active} onNav={setActive} onCmd={() => {}} />
+      <div className="main">
+        <div className="tb">
+          <div className="tb-crumbs"><span>Wintech AR</span><IcChevR size={12} /><span style={{ color: "var(--ink)" }}>Dashboard</span></div>
+          <div style={{ flex: 1 }}></div>
+          <div style={{ fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)", textTransform: "capitalize" }}>{today}</div>
+          <div className="tb-search"><IcSrch size={14} /><span style={{ flex: 1 }}>Buscar o ejecutar…</span><span className="sb-kbd">⌘K</span></div>
+          <button className="tb-btn"><IcUp size={14} /> Cargar PDF</button>
+          <button className="tb-btn primary"><IcPlus size={14} /> Nuevo</button>
+          <div style={{ position: "relative", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line)", borderRadius: 7, color: "var(--ink-2)", background: "#FFF" }}>
+            <IcBell size={15} />
+            <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, borderRadius: "50%", background: "var(--crit)", border: "2px solid #fff" }}></span>
+          </div>
+        </div>
+
+        <div className="content">
+          <div className="ph">
+            <div>
+              <h1>Buenas, Lucas 👋</h1>
+              <div className="greet">Esto es lo que está pasando hoy en tu operación.</div>
+            </div>
+            <div className="right">
+              <span className="pill"><span className="dot"></span>Tipo cambio: ARS 1.247 / USD</span>
+              <span className="pill" style={{ borderColor: "var(--primary)", color: "var(--primary)" }}>Última sync · hace 2 min</span>
+            </div>
+          </div>
+
+          <div className="kpis">
+            <Kpi lbl="Stock crítico" v="7" u="productos" sub="bajo mínimo" delta="+2" deltaKind="dn" acc="var(--crit)" />
+            <Kpi lbl="Importaciones en tránsito" v="3" u="activas" sub="próx. ETA 12d" acc="var(--primary)" />
+            <Kpi lbl="Pedidos pendientes" v="12" sub="USD 47.300 reservados" delta="+3 hoy" deltaKind="up" acc="var(--teal)" />
+            <Kpi lbl="Margen del mes" v="23.4" u="%" sub="vs 21.8% mes ant." delta="+1.6 pp" deltaKind="up" acc="var(--teal)" />
+            <div className="eq">
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <div>
+                  <div className="lbl">⚖ Punto de equilibrio · Abril</div>
+                  <div className="desc" style={{ marginTop: 8 }}>Necesitás facturar <b>USD 285.000</b> este mes para cubrir gastos.</div>
+                </div>
+                <div className="pct">
+                  <div className="big">69<span className="u">%</span></div>
+                  <div className="small">8 días restantes</div>
+                </div>
+              </div>
+              <div className="bar"><div style={{ width: "69%" }}></div></div>
+              <div className="legend"><span>Llevás <b>USD 198.400</b></span><span>Faltan <b>USD 86.600</b></span></div>
+            </div>
+          </div>
+
+          <div className="sect"><h2>Acciones rápidas</h2><div className="h-line"></div></div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
+            <Qa I={IcUp} t="Cargar pedido por PDF" s="IA extrae items + disponibilidad" />
+            <Qa I={IcTruck} t="Armar próxima importación" s="basado en consumo y stock" />
+            <Qa I={IcBox} t="Revisar stock crítico" s="7 productos requieren atención" />
+            <Qa I={IcChart} t="Ver rentabilidad del mes" s="margen, equilibrio, alertas" />
+          </div>
+
+          <div className="sect"><h2>Operación en curso</h2><div className="h-line"></div></div>
+          <div className="row3">
+            <div className="panel">
+              <div className="ph-h"><div><h3>Importaciones en tránsito</h3><div className="sub">3 activas · próxima ETA en 12 días</div></div><div className="grow"></div><button className="lk">Ver todas <IcArrR size={11} /></button></div>
+              <ImpRow code="IMP-2026-005" route="BsAs" eta="10 mar" rel="en 12d" relK="warn" stateIdx={5} usd="142.800" weight="22.4" items={48} cap={93} icon={<IcShip size={16} />} state="en tránsito" />
+              <ImpRow code="IMP-2026-006" route="Mvd" eta="04 abr" rel="en 37d" stateIdx={3} usd="118.500" weight="20.8" items={41} cap={87} icon={<IcDoc size={16} />} state="pago parcial" />
+              <ImpRow code="IMP-2026-007" route="Mvd" eta="24 may" rel="en 87d" stateIdx={1} usd="156.200" weight="23.1" items={56} cap={96} icon={<IcSpk size={16} />} state="negociación" />
+            </div>
+            <div className="panel">
+              <div className="ph-h"><div><h3>Stock crítico <span style={{ fontFamily:"var(--mono)", fontSize:10, background:"var(--crit)", color:"#fff", padding:"1px 6px", borderRadius:4, marginLeft:6 }}>7</span></h3><div className="sub">7 productos bajo mínimo</div></div><div className="grow"></div><button className="lk">Ver stock <IcArrR size={11} /></button></div>
+              <CritRow sku="WT-58-7001" name="Marco Wintech 58 Blanco" stock={28} min={120} />
+              <CritRow sku="WT-58-7012" name="Hoja batiente 58 · refuerzo" stock={42} min={100} eta="IMP-005 · 12d" />
+              <CritRow sku="HRJ-CR-0042" name="Cremona oscilobatiente Roto NT" stock={18} min={80} eta="IMP-006 · 37d" />
+              <CritRow sku="WT-70-3204" name="Junco soldable 70 · negro EPDM" stock={56} min={150} />
+              <CritRow sku="HRJ-BG-1108" name="Bisagra carga pesada 80kg" stock={11} min={60} eta="IMP-007 · 87d" />
+              <div style={{ padding:"10px 18px", fontSize:12, color:"var(--ink-3)", textAlign:"center", borderTop:"1px solid var(--line-2)" }}>
+                + 2 más — <span style={{ color:"var(--primary)", cursor:"pointer", fontWeight:500 }}>ver todos</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="sect"><h2>Pulso del negocio</h2><div className="h-line"></div></div>
+          <div className="row2">
+            <div className="panel">
+              <div className="ph-h"><div><h3>Actividad reciente</h3><div className="sub">últimas 24 horas</div></div></div>
+              <Act ic={<IcSpk size={13} />} bg="var(--teal-soft)" col="var(--primary)" who="IA" rest="procesó pedido de Aberturas Rivera — 12 ítems · 2 alertas" ts="hace 14 min" />
+              <Act ic={<IcDoc size={13} />} bg="var(--primary-soft)" col="var(--primary)" who="Lucas P." rest="registró pago parcial 30% sobre IMP-2026-006" ts="hace 2h" />
+              <Act ic={<IcTruck size={13} />} bg="var(--primary-soft)" col="var(--primary)" who="Sistema" rest="actualizó ETA de IMP-2026-005 — −2 días" ts="hace 4h" />
+              <Act ic={<IcAlert size={13} />} bg="rgba(168,117,35,0.1)" col="var(--warn)" who="Sistema" rest="WT-58-7001 cruzó umbral crítico (28u/120u)" ts="hace 6h" />
+              <Act ic={<IcDoc size={13} />} bg="var(--teal-soft)" col="var(--primary)" who="Lucas P." rest="confirmó PED-2026-0089 a Aberturas del Sur" ts="hace 9h" />
+            </div>
+            <div className="panel">
+              <div className="ph-h"><div><h3>Próximos hitos</h3><div className="sub">próximos 60 días</div></div></div>
+              <Hito d="07 mar" days={9} text="Vence pago 70% restante a Adopen" code="IMP-2026-005" critical />
+              <Hito d="10 mar" days={12} text="ETA Buenos Aires" code="IMP-2026-005" />
+              <Hito d="12 mar" days={14} text="Cargar gastos operativos de febrero" />
+              <Hito d="18 mar" days={20} text="Confirmar siguiente pedido a Adopen" code="IMP-2026-007" />
+              <Hito d="04 abr" days={37} text="ETA Montevideo" code="IMP-2026-006" />
+            </div>
+          </div>
+
+          <div style={{ marginTop:48, padding:"16px 0", borderTop:"1px dashed var(--line)", display:"flex", alignItems:"center", gap:16, color:"var(--ink-3)", fontSize:11.5, fontFamily:"var(--mono)" }}>
+            <span>Última sincronización · hace 2 min</span><span>·</span><span>v0.9 · Jardín de San José — 5 colores naturales</span>
+            <span style={{ marginLeft:"auto" }}>Modificado por Lucas P. · hace 14 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Kpi({ lbl, v, u, sub, delta, deltaKind, acc }) {
+  return (
+    <div className="kpi">
+      <div className="lbl"><span className="acc" style={{ background: acc }}></span>{lbl}</div>
+      <div className="v"><span className="num">{v}</span>{u && <span className="u">{u}</span>}</div>
+      <div className="sub">{delta && <span className={`delta ${deltaKind}`}>{deltaKind === "up" ? "▲" : "▼"} {delta}</span>}<span>{sub}</span></div>
+    </div>
+  );
+}
+function Qa({ I, t, s }) {
+  return <div className="qa"><div className="qa-ic"><I size={16} /></div><div style={{ flex: 1 }}><div className="qa-t">{t}</div><div className="qa-s">{s}</div></div></div>;
+}
+function ImpRow({ code, route, eta, rel, relK, stateIdx, usd, weight, items, cap, icon, state }) {
+  const steps = ["Borr","Neg","Conf","Pago","Pagada","Tránsito","Arribó","Nacion.","Recib."];
+  return (
+    <div className="imp-row">
+      <div className="glyph">{icon}</div>
+      <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="code">{code}</span>
+          <span style={{ fontSize: 11, color: "var(--ink-3)" }}>· {route}</span>
+          <span className="tag">{state}</span>
+        </div>
+        <div className="timeline">
+          {steps.map((s, i) => (
+            <div key={i}>
+              <div className="bar" style={{ background: i < stateIdx ? "var(--primary)" : i === stateIdx ? "var(--accent)" : "var(--line)" }}></div>
+              <span className="lbl" style={{ color: i === stateIdx ? "var(--primary)" : "var(--ink-3)", fontWeight: i === stateIdx ? 600 : 400 }}>{s}</span>
+            </div>
+          ))}
+        </div>
+        <div className="meta">
+          <span><b>{items}</b> items</span><span><b>{weight}t</b>/24t · <span style={{ color: cap > 90 ? "var(--warn)" : "var(--primary)" }}>{cap}%</span></span><span>USD <b>{usd}</b></span>
+        </div>
+      </div>
+      <div className="eta-box">
+        <div className="l">ETA</div>
+        <div className="d">{eta}</div>
+        <div className="r" style={{ color: relK === "warn" ? "var(--warn)" : "var(--ink-3)" }}>{rel}</div>
+      </div>
+    </div>
+  );
+}
+function CritRow({ sku, name, stock, min, eta }) {
+  const ratio = stock / min;
+  const color = ratio < 0.3 ? "var(--crit)" : ratio < 0.6 ? "var(--warn)" : "var(--ok)";
+  return (
+    <div className="crit-row">
+      <div className="dot" style={{ background: color }}></div>
+      <div style={{ minWidth: 0 }}>
+        <div className="name">{name}</div>
+        <div className="meta">{sku}<span style={{ margin:"0 8px", opacity:0.5 }}>·</span><span style={{ color }}>{stock}u</span><span style={{ opacity:0.5 }}>/mín {min}</span>{eta && <><span style={{ margin:"0 8px", opacity:0.5 }}>·</span><span style={{ color:"var(--primary)" }}>{eta}</span></>}</div>
+      </div>
+      <IcChevR size={14} style={{ color: "var(--ink-3)" }} />
+    </div>
+  );
+}
+function Act({ ic, bg, col, who, rest, ts }) {
+  return (
+    <div className="act-row">
+      <div className="ic-wrap" style={{ background: bg, color: col }}>{ic}</div>
+      <div style={{ flex: 1 }}>
+        <div className="body"><b style={{ fontWeight: 600 }}>{who}</b> {rest}</div>
+        <div className="ts">{ts}</div>
+      </div>
+    </div>
+  );
+}
+function Hito({ d, days, text, code, critical }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "60px 1fr auto", gap: 14, padding: "12px 18px", borderBottom: "1px solid var(--line-2)", alignItems: "center" }}>
+      <div style={{ textAlign: "center", padding: "4px 0", border: "1px solid var(--line)", borderRadius: 6, background: "#FAF8E8" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 13, fontWeight: 600, color: critical ? "var(--crit)" : "var(--ink)" }}>{d}</div>
+        <div style={{ fontSize: 10, color: "var(--ink-3)", fontFamily: "var(--mono)" }}>+{days}d</div>
+      </div>
+      <div>
+        <div style={{ fontSize: 13, color: "var(--ink)" }}>{critical && <span style={{ color: "var(--crit)", marginRight: 6 }}>●</span>}{text}</div>
+        {code && <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--primary)", marginTop: 2, fontWeight: 500 }}>{code}</div>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

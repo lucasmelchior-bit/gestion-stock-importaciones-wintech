@@ -4,6 +4,14 @@
 esto. Si cambiás una fórmula, actualizá este documento en el mismo commit. Cada regla tiene un ID
 (`BR-n`) que se cita desde el código y los tests.
 
+> **A reconciliar (Fase de importaciones/reposición):** el diseño "Jardín de San José" (`adr/0005`)
+> propone una sugerencia de reposición más simple —"consumo promedio de 90 días + 20% de buffer"—
+> y menciona un lead time de ~90 días, mientras que acá se usa **EWMA + stock de seguridad (Z)** y
+> **105 días**. No se resuelve todavía: lo más probable es que convivan un método simple para la
+> sugerencia rápida y el estadístico para el forecast. Además el diseño agrega cálculos nuevos
+> (landed cost por SKU, punto de equilibrio mensual) que se formalizarán como `BR-10`, `BR-11`, …
+> Ver [`FronEnd_Design/diseno.md`](FronEnd_Design/design_handoff_wintech/diseno.md) §8.
+
 ## Parámetros globales (tabla `settings`)
 
 | Parámetro | Símbolo | Default | Significado |

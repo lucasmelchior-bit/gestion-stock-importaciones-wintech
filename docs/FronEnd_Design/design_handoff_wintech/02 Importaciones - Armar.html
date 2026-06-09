@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Armar próxima importación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="wintech-shell.css" />
+<style>
+  /* ----- Wizard stepper ----- */
+  .stepper{display:flex;align-items:center;gap:0;background:var(--paper);border:1px solid var(--line-soft);border-radius:10px;padding:14px 22px;margin-bottom:22px;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .stp{display:flex;align-items:center;gap:10px;flex:1;position:relative}
+  .stp .num{width:28px;height:28px;border-radius:50%;background:var(--paper-2);border:1.5px solid var(--line-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;flex:0 0 28px}
+  .stp.done .num{background:var(--primary);border-color:var(--primary);color:#fff}
+  .stp.active .num{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+  .stp .lab{font-size:12px;color:var(--ink-3);font-weight:500;text-transform:uppercase;letter-spacing:0.04em}
+  .stp.done .lab{color:var(--ink-2)}
+  .stp.active .lab{color:var(--ink);font-weight:600}
+  .stp .line{flex:1;height:1.5px;background:var(--line-2);margin:0 8px;border-radius:1px}
+  .stp.done .line{background:var(--primary)}
+
+  /* ----- Layout ----- */
+  .wiz{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+
+  /* ----- Suggestion / item table ----- */
+  .tbl{background:var(--paper);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .tbl-h{display:grid;grid-template-columns:32px 2.4fr 0.9fr 0.9fr 0.9fr 0.9fr 0.7fr 28px;gap:10px;padding:11px 18px;background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);border-bottom:1px solid var(--line-soft);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;align-items:center}
+  .tbl-h > span{text-align:right}
+  .tbl-h > span.l{text-align:left}
+  .tbl-row{display:grid;grid-template-columns:32px 2.4fr 0.9fr 0.9fr 0.9fr 0.9fr 0.7fr 28px;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:13px}
+  .tbl-row:last-child{border-bottom:none}
+  .tbl-row:hover{background:var(--paper-2)}
+  .tbl-row.suggested{background:linear-gradient(90deg, rgba(245,200,66,0.08) 0%, transparent 100%)}
+  .tbl-row .name{font-weight:500;color:var(--ink)}
+  .tbl-row .sku{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:2px}
+  .tbl-row .num{font-family:var(--mono);text-align:right;color:var(--ink-2)}
+  .tbl-row .num.strong{color:var(--ink);font-weight:600}
+  .tbl-row .crit{color:var(--crit);font-weight:600}
+  .tbl-row .warn{color:var(--warn);font-weight:600}
+  .tbl-row .qty-edit{display:flex;align-items:center;gap:0;border:1px solid var(--line-2);border-radius:6px;background:#fff;overflow:hidden;width:fit-content;margin-left:auto}
+  .tbl-row .qty-edit button{background:transparent;border:none;width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer}
+  .tbl-row .qty-edit button:hover{background:var(--paper-2)}
+  .tbl-row .qty-edit input{border:none;outline:none;width:54px;text-align:center;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink);background:transparent;padding:2px 0}
+  .tbl-row .badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-family:var(--mono);background:var(--accent-soft);color:var(--ink-2);padding:2px 6px;border-radius:4px;font-weight:500;border:1px solid var(--accent-2);margin-top:4px}
+  .tbl-row .badge.crit{background:rgba(160,59,30,0.08);border-color:var(--crit);color:var(--crit)}
+  .tbl-row .x-btn{background:transparent;border:none;color:var(--ink-3);cursor:pointer;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center}
+  .tbl-row .x-btn:hover{background:rgba(160,59,30,0.08);color:var(--crit)}
+  .tbl-foot{padding:14px 18px;display:flex;align-items:center;gap:10px;background:var(--paper-2);border-top:1px solid var(--line-soft)}
+  .tbl-foot .add-prod{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px dashed var(--line);border-radius:6px;background:transparent;color:var(--primary);font-size:12.5px;cursor:pointer;font-weight:500}
+  .tbl-foot .add-prod:hover{background:var(--primary-soft)}
+
+  /* AI banner */
+  .ai-banner{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:linear-gradient(90deg, var(--accent-soft) 0%, var(--paper) 70%);border:1px solid var(--accent-2);border-radius:10px;margin-bottom:18px}
+  .ai-banner .glyph{width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--ink);display:flex;align-items:center;justify-content:center;flex:0 0 34px}
+  .ai-banner .body{flex:1;font-size:13px;color:var(--ink-2);line-height:1.5}
+  .ai-banner .body b{color:var(--ink);font-weight:600}
+  .ai-banner .actions{display:flex;gap:8px;align-items:center}
+
+  /* Right rail */
+  .rail{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+  .rail .panel{padding:0}
+  .rail .summary-body{padding:18px}
+  .rail .row{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;color:var(--ink-2)}
+  .rail .row .v{font-family:var(--mono);font-weight:600;color:var(--ink)}
+  .rail .row.total{border-top:1px dashed var(--line-2);margin-top:8px;padding-top:12px;font-size:14px}
+  .rail .row.total .v{font-size:16px;color:var(--primary)}
+
+  /* Container capacity ring */
+  .cap-ring{display:flex;align-items:center;gap:14px;padding:18px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%)}
+  .cap-ring svg{flex:0 0 76px}
+  .cap-ring .body{flex:1}
+  .cap-ring .body .lbl{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:4px}
+  .cap-ring .body .v{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);letter-spacing:-0.01em}
+  .cap-ring .body .sub{font-size:11.5px;color:var(--ink-3);margin-top:2px;font-family:var(--mono)}
+  .cap-ring .body .warn-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--accent-soft);color:var(--warn);padding:2px 7px;border-radius:4px;font-weight:600;margin-top:6px;border:1px solid var(--accent-2)}
+
+  /* Provider card */
+  .prov{padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line-soft)}
+  .prov:last-child{border-bottom:none}
+  .prov .av{width:36px;height:36px;border-radius:8px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 36px;border:1px solid var(--line-2)}
+  .prov .body{flex:1;font-size:13px}
+  .prov .body .n{font-weight:600;color:var(--ink)}
+  .prov .body .s{font-size:11.5px;color:var(--ink-3);margin-top:2px;font-family:var(--mono)}
+
+  /* Tab strip on top of table */
+  .tabs{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--line-soft);background:var(--paper)}
+  .tab{padding:11px 18px;font-size:13px;font-weight:500;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px}
+  .tab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--primary);background:var(--paper-2)}
+  .tab .count{font-family:var(--mono);font-size:10.5px;background:var(--paper-2);border:1px solid var(--line-2);color:var(--ink-2);padding:1px 6px;border-radius:4px;font-weight:600}
+  .tab.active .count{background:var(--primary);border-color:var(--primary);color:#fff}
+
+  .footer-bar{position:sticky;bottom:0;background:linear-gradient(180deg, transparent 0%, var(--bg) 30%);padding:18px 0 8px;display:flex;align-items:center;gap:10px;margin-top:18px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="wintech-shell.jsx"></script>
+
+<script type="text/babel">
+const ITEMS = [
+  { sku: "WT-58-7001", name: "Marco Wintech 58 Blanco", cat: "Perfil", stock: 28, min: 120, sold30: 92, sugg: 240, cost: 18.40, kg: 1.8, suggested: true, why: "stock bajo + alto consumo" },
+  { sku: "WT-58-7012", name: "Hoja batiente 58 · refuerzo", cat: "Perfil", stock: 42, min: 100, sold30: 76, sugg: 180, cost: 22.10, kg: 2.1, suggested: true, why: "consumo creciente +18%" },
+  { sku: "HRJ-CR-0042", name: "Cremona oscilobatiente Roto NT", cat: "Herraje", stock: 18, min: 80, sold30: 54, sugg: 150, cost: 41.50, kg: 0.4, suggested: true, why: "crítico · sin reposición a la vista", crit: true },
+  { sku: "WT-70-3204", name: "Junco soldable 70 · negro EPDM", cat: "Junco", stock: 56, min: 150, sold30: 88, sugg: 220, cost: 6.20, kg: 0.3, suggested: true, why: "stock bajo" },
+  { sku: "HRJ-BG-1108", name: "Bisagra carga pesada 80kg", cat: "Herraje", stock: 11, min: 60, sold30: 28, sugg: 90, cost: 14.80, kg: 0.6, suggested: true, why: "crítico", crit: true },
+  { sku: "WT-58-7005", name: "Junquillo clip 58 · 6m", cat: "Perfil", stock: 84, min: 100, sold30: 62, sugg: 120, cost: 9.10, kg: 0.9 },
+  { sku: "WT-58-7008", name: "Refuerzo galvanizado 1.5mm", cat: "Refuerzo", stock: 64, min: 80, sold30: 48, sugg: 100, cost: 11.50, kg: 1.2 },
+  { sku: "HRJ-MN-2204", name: "Manija aluminio anodizado", cat: "Herraje", stock: 95, min: 120, sold30: 38, sugg: 60, cost: 8.90, kg: 0.15 },
+];
+
+function App(){
+  const [items, setItems] = React.useState(() => ITEMS.filter(i => i.suggested).map(i => ({ ...i, qty: i.sugg })));
+  const [active, setActive] = React.useState("Importaciones");
+
+  const totalUSD = items.reduce((a, i) => a + i.qty * i.cost, 0);
+  const totalKg = items.reduce((a, i) => a + i.qty * i.kg, 0);
+  const totalUnits = items.reduce((a, i) => a + i.qty, 0);
+  const capPct = Math.min(100, (totalKg / 24000) * 100);
+  const capColor = capPct > 95 ? "var(--crit)" : capPct > 85 ? "var(--warn)" : "var(--primary)";
+
+  const updateQty = (sku, delta) => {
+    setItems(prev => prev.map(i => i.sku === sku ? { ...i, qty: Math.max(0, i.qty + delta) } : i));
+  };
+  const setQty = (sku, val) => {
+    setItems(prev => prev.map(i => i.sku === sku ? { ...i, qty: Math.max(0, parseInt(val) || 0) } : i));
+  };
+  const remove = (sku) => setItems(prev => prev.filter(i => i.sku !== sku));
+
+  return (
+    <div className="app" data-screen-label="01 Armar Importacion">
+      <Sidebar active={active} onNav={setActive} />
+      <div className="main">
+        <Topbar
+          crumbs={["Wintech AR", "Importaciones", "Nueva"]}
+          actions={<>
+            <button className="tb-btn"><IcMagic size={14} /> Sugerir desde IA</button>
+            <button className="tb-btn primary"><IcCheck size={14} /> Confirmar pedido</button>
+          </>}
+        />
+
+        <div className="content">
+          {/* Header */}
+          <div className="page-h">
+            <div>
+              <h1>Armar próxima importación</h1>
+              <p className="lede">La IA combinó tu consumo de los últimos 90 días, el stock crítico y la capacidad del contenedor para sugerir una compra a Adopen.</p>
+            </div>
+            <div className="right">
+              <span className="pill"><span className="dot"></span>Borrador · auto-guardado hace 12s</span>
+            </div>
+          </div>
+
+          {/* Stepper */}
+          <div className="stepper">
+            <div className="stp done"><div className="num"><IcCheck size={14} /></div><div className="lab">Proveedor</div><div className="line"></div></div>
+            <div className="stp active"><div className="num">2</div><div className="lab">Items y cantidades</div><div className="line"></div></div>
+            <div className="stp"><div className="num">3</div><div className="lab">Costos y FOB</div><div className="line"></div></div>
+            <div className="stp"><div className="num">4</div><div className="lab">Revisar y enviar</div></div>
+          </div>
+
+          {/* AI banner */}
+          <div className="ai-banner">
+            <div className="glyph"><IcMagic size={18} /></div>
+            <div className="body">
+              <b>Sugerencia IA · 5 productos pre-cargados</b><br />
+              Detecté <b>2 productos críticos</b> sin reposición (HRJ-CR-0042, HRJ-BG-1108) y <b>3 con consumo creciente</b>. La cantidad sugerida cubre <b>90 días de venta promedio</b> + 20% de buffer. Tenés un <b>7% de holgura</b> en el contenedor: podríamos sumar otro item si querés aprovechar el viaje.
+            </div>
+            <div className="actions">
+              <button className="tb-btn"><IcPlus size={13} /> Agregar otro</button>
+              <button className="tb-btn primary"><IcCheck size={13} /> Aceptar todas</button>
+            </div>
+          </div>
+
+          <div className="wiz">
+            {/* Left: items table */}
+            <div>
+              <div className="tbl">
+                <div className="tabs">
+                  <div className="tab active"><IcMagic size={13} />Sugeridos por IA<span className="count">{items.length}</span></div>
+                  <div className="tab"><IcAlert size={13} />Stock crítico<span className="count">7</span></div>
+                  <div className="tab"><IcChart size={13} />Más vendidos<span className="count">24</span></div>
+                  <div className="tab"><IcCart size={13} />Catálogo completo</div>
+                  <div style={{ flex: 1 }}></div>
+                  <div className="tab" style={{ borderBottom: "none" }}><IcFltr size={13} /> Filtros</div>
+                </div>
+
+                <div className="tbl-h">
+                  <span></span>
+                  <span className="l">Producto</span>
+                  <span>Stock</span>
+                  <span>Mín.</span>
+                  <span>Cons. 90d</span>
+                  <span>Cant. pedido</span>
+                  <span>Total USD</span>
+                  <span></span>
+                </div>
+
+                {items.map((i, idx) => (
+                  <div key={i.sku} className={`tbl-row ${i.suggested ? "suggested" : ""}`}>
+                    <div style={{ width: 32, height: 32, borderRadius: 6, background: i.cat === "Perfil" ? "var(--primary-soft)" : i.cat === "Herraje" ? "var(--accent-soft)" : "var(--teal-soft)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, fontFamily: "var(--mono)", border: "1px solid var(--line-2)" }}>{i.cat[0]}</div>
+                    <div>
+                      <div className="name">{i.name}</div>
+                      <div className="sku">{i.sku} · {i.cat} · {i.kg}kg/u</div>
+                      {i.why && <span className={`badge ${i.crit ? "crit" : ""}`}>{i.crit && <IcAlert size={10} />}{i.why}</span>}
+                    </div>
+                    <div className={`num ${i.stock < i.min * 0.3 ? "crit" : i.stock < i.min * 0.6 ? "warn" : ""}`}>{i.stock}</div>
+                    <div className="num">{i.min}</div>
+                    <div className="num">{i.sold30 * 3}</div>
+                    <div>
+                      <div className="qty-edit">
+                        <button onClick={() => updateQty(i.sku, -10)}><IcMinus size={12} /></button>
+                        <input value={i.qty} onChange={e => setQty(i.sku, e.target.value)} />
+                        <button onClick={() => updateQty(i.sku, 10)}><IcPlus size={12} /></button>
+                      </div>
+                    </div>
+                    <div className="num strong">{(i.qty * i.cost).toLocaleString("es-AR", { maximumFractionDigits: 0 })}</div>
+                    <button className="x-btn" onClick={() => remove(i.sku)}><IcX size={13} /></button>
+                  </div>
+                ))}
+
+                <div className="tbl-foot">
+                  <button className="add-prod"><IcPlus size={13} /> Agregar producto manualmente</button>
+                  <div style={{ flex: 1 }}></div>
+                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>Cantidades pre-llenadas en base a 90 días de consumo + 20% buffer</span>
+                </div>
+              </div>
+
+              {/* Capacity bar */}
+              <div className="panel" style={{ marginTop: 18 }}>
+                <div className="panel-h">
+                  <h3>Optimización del contenedor 40' HC</h3>
+                  <span className="sub">capacidad 24.000 kg · 67 m³</span>
+                  <div className="grow"></div>
+                  <button className="lk"><IcInfo size={11} /> ¿Qué optimiza la IA?</button>
+                </div>
+                <div style={{ padding: "18px 22px", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+                  <CapMetric label="Peso" v={`${totalKg.toLocaleString("es-AR", { maximumFractionDigits: 0 })} kg`} sub={`${capPct.toFixed(1)}% · 24.000 kg`} pct={capPct} color={capColor} />
+                  <CapMetric label="Volumen" v="48.3 m³" sub="72.1% · 67 m³" pct={72.1} color="var(--primary)" />
+                  <CapMetric label="Items totales" v={totalUnits.toLocaleString("es-AR")} sub={`${items.length} SKUs distintos`} pct={null} color="var(--teal)" />
+                </div>
+              </div>
+            </div>
+
+            {/* Right rail */}
+            <div className="rail">
+              <div className="panel">
+                <div className="cap-ring">
+                  <CapRing pct={capPct} color={capColor} />
+                  <div className="body">
+                    <div className="lbl">Capacidad usada</div>
+                    <div className="v">{capPct.toFixed(0)}% <span style={{ fontSize: 12, color: "var(--ink-3)", fontWeight: 400 }}>del contenedor</span></div>
+                    <div className="sub">{(24000 - totalKg).toLocaleString("es-AR", { maximumFractionDigits: 0 })} kg disponibles</div>
+                    {capPct < 90 && <div className="warn-pill"><IcInfo size={10} /> Hay holgura · sumá items</div>}
+                  </div>
+                </div>
+                <div className="panel-h" style={{ background: "transparent", borderTop: "1px solid var(--line-soft)" }}>
+                  <h3>Resumen del pedido</h3>
+                </div>
+                <div className="summary-body">
+                  <div className="row"><span>Items distintos</span><span className="v">{items.length}</span></div>
+                  <div className="row"><span>Unidades totales</span><span className="v">{totalUnits.toLocaleString("es-AR")}</span></div>
+                  <div className="row"><span>Peso total</span><span className="v">{totalKg.toLocaleString("es-AR", { maximumFractionDigits: 0 })} kg</span></div>
+                  <div className="row"><span>FOB Adopen</span><span className="v">USD {totalUSD.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span></div>
+                  <div className="row"><span>+ Flete estimado</span><span className="v">USD 8.400</span></div>
+                  <div className="row"><span>+ Aranceles 18%</span><span className="v">USD {(totalUSD * 0.18).toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span></div>
+                  <div className="row total"><span>Costo total estimado</span><span className="v">USD {(totalUSD * 1.18 + 8400).toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span></div>
+                </div>
+              </div>
+
+              <div className="panel">
+                <div className="panel-h"><h3>Proveedor</h3><div className="grow"></div><button className="lk">Cambiar</button></div>
+                <div className="prov">
+                  <div className="av">AD</div>
+                  <div className="body">
+                    <div className="n">Adopen S.A.</div>
+                    <div className="s">Estambul, Turquía · MOQ 500u · Lead 75d</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="panel">
+                <div className="panel-h"><h3>Plan de pago</h3><div className="grow"></div><button className="lk">Editar</button></div>
+                <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+                  <PayRow label="30% al confirmar" pct={30} usd={totalUSD * 0.3} when="hoy + 7d" />
+                  <PayRow label="40% al embarcar" pct={40} usd={totalUSD * 0.4} when="aprox. en 45d" />
+                  <PayRow label="30% contra docs" pct={30} usd={totalUSD * 0.3} when="aprox. en 90d" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky footer bar */}
+          <div className="footer-bar">
+            <button className="tb-btn"><IcArrL size={14} /> Volver a proveedor</button>
+            <div style={{ flex: 1 }}></div>
+            <span style={{ fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)" }}>Auto-guardado · {items.length} items · USD {totalUSD.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span>
+            <button className="tb-btn"><IcDoc size={14} /> Guardar borrador</button>
+            <button className="tb-btn primary">Continuar a costos<IcArrR size={14} /></button>
+          </div>
+
+          <div className="app-foot">
+            <span>Última sync · hace 2 min</span><span>·</span><span>v0.9 · Jardín de San José</span>
+            <div className="grow"></div>
+            <span>Modificado por Lucas P. · hace 12 segundos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CapMetric({ label, v, sub, pct, color }){
+  return (
+    <div>
+      <div style={{ fontSize: 10.5, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: 0.04, fontWeight: 600, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontFamily: "var(--mono)", fontSize: 22, fontWeight: 600, color: "var(--ink)", letterSpacing: -0.01 }}>{v}</div>
+      <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 2, fontFamily: "var(--mono)" }}>{sub}</div>
+      {pct !== null && (
+        <div style={{ height: 5, background: "var(--paper-2)", borderRadius: 2, marginTop: 10, overflow: "hidden", border: "1px solid var(--line-2)" }}>
+          <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 2 }}></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CapRing({ pct, color }){
+  const r = 32, c = 2 * Math.PI * r;
+  return (
+    <svg width="76" height="76" viewBox="0 0 76 76">
+      <circle cx="38" cy="38" r={r} fill="none" stroke="var(--line-2)" strokeWidth="6" />
+      <circle cx="38" cy="38" r={r} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"
+              strokeDasharray={c} strokeDashoffset={c - (c * pct) / 100}
+              transform="rotate(-90 38 38)" />
+      <text x="38" y="42" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="15" fontWeight="600" fill="var(--ink)">{pct.toFixed(0)}%</text>
+    </svg>
+  );
+}
+
+function PayRow({ label, pct, usd, when }){
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12.5 }}>
+      <div style={{ width: 38, height: 28, borderRadius: 6, background: "var(--primary-soft)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600, flex: "0 0 38px" }}>{pct}%</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ color: "var(--ink)", fontWeight: 500 }}>{label}</div>
+        <div style={{ color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 11 }}>{when}</div>
+      </div>
+      <div style={{ fontFamily: "var(--mono)", fontWeight: 600, color: "var(--ink)" }}>USD {usd.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

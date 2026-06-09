@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Cargar pedido (IA)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="wintech-shell.css" />
+<style>
+  /* IA banner */
+  .ia-banner{background:linear-gradient(135deg, var(--accent-soft) 0%, var(--paper) 60%);border:1px solid var(--accent-2);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:center;margin-bottom:18px;position:relative;overflow:hidden}
+  .ia-banner::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent-2)}
+  .ia-banner .ia-ic{width:42px;height:42px;border-radius:10px;background:var(--accent);color:var(--ink);display:flex;align-items:center;justify-content:center;flex:0 0 42px}
+  .ia-banner .ia-body{flex:1}
+  .ia-banner .ia-body .t{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:8px}
+  .ia-banner .ia-body .tag{font-size:10px;background:var(--ink);color:var(--accent);padding:2px 7px;border-radius:4px;font-family:var(--mono);letter-spacing:0.04em;font-weight:600}
+  .ia-banner .ia-body .s{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  .ia-banner .ia-stats{display:flex;gap:18px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+  .ia-banner .ia-stats b{color:var(--ink);font-size:14px;display:block;font-weight:600}
+
+  /* Split */
+  .split{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;align-items:start}
+
+  /* PDF preview */
+  .pdf-pane{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:680px;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .pdf-h{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%)}
+  .pdf-h .file-ic{width:30px;height:30px;border-radius:7px;background:var(--crit);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:var(--mono)}
+  .pdf-h .meta{flex:1;min-width:0}
+  .pdf-h .meta .name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pdf-h .meta .sub{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:1px}
+  .pdf-h .zoom{display:flex;align-items:center;gap:4px;background:var(--paper-2);border:1px solid var(--line-soft);border-radius:7px;padding:3px}
+  .pdf-h .zoom button{border:none;background:transparent;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);border-radius:4px}
+  .pdf-h .zoom button:hover{background:var(--paper)}
+  .pdf-h .zoom .pct{font-family:var(--mono);font-size:11px;color:var(--ink-2);min-width:38px;text-align:center}
+
+  .pdf-body{flex:1;overflow:auto;background:#E8E8E0;padding:20px;display:flex;justify-content:center}
+  .pdf-page{background:#fff;width:100%;max-width:560px;min-height:780px;box-shadow:0 4px 16px rgba(0,0,0,0.08);padding:48px 52px;font-family:'Inter',sans-serif;color:#222;font-size:11.5px;line-height:1.5;position:relative}
+
+  .pdf-page .doc-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;border-bottom:2px solid #d4a83a;padding-bottom:14px}
+  .pdf-page .doc-h .logo{font-size:20px;font-weight:700;color:#3a4d2c;letter-spacing:-0.01em}
+  .pdf-page .doc-h .logo small{display:block;font-weight:400;font-size:9px;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px}
+  .pdf-page .doc-h .info{text-align:right;font-size:10px;color:#666}
+  .pdf-page .doc-h .info b{display:block;color:#222;font-size:14px;margin-bottom:2px}
+
+  .pdf-page h2{font-size:14px;color:#3a4d2c;margin:0 0 6px;border-left:3px solid #d4a83a;padding-left:8px}
+  .pdf-page .tag{display:inline-block;font-size:9px;background:#f4ecd0;color:#7a5e10;padding:2px 7px;border-radius:3px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;margin-left:6px;vertical-align:middle}
+
+  .pdf-page .blk{margin-bottom:18px}
+  .pdf-page .row{display:flex;gap:12px;margin-bottom:4px}
+  .pdf-page .row .l{color:#888;width:88px;flex-shrink:0;font-size:10.5px}
+  .pdf-page .row .v{color:#222;font-weight:500}
+
+  .pdf-page table{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:8px}
+  .pdf-page th{background:#f4ecd0;color:#3a4d2c;padding:6px 8px;text-align:left;font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1.5px solid #d4a83a}
+  .pdf-page td{padding:7px 8px;border-bottom:1px solid #eee;vertical-align:top}
+  .pdf-page td .code{font-family:'JetBrains Mono',monospace;color:#666;font-size:10px}
+  .pdf-page td.r{text-align:right;font-family:'JetBrains Mono',monospace}
+  .pdf-page tr.hl{background:#fef9e0}
+  .pdf-page tr.hl td{position:relative}
+  .pdf-page tr.hl::after{content:"";position:absolute}
+
+  /* IA highlight overlay */
+  .pdf-ann{position:absolute;border:2px solid var(--accent-2);background:rgba(245,200,66,0.18);border-radius:3px;cursor:pointer;transition:all 0.15s}
+  .pdf-ann:hover{background:rgba(245,200,66,0.32);box-shadow:0 0 0 3px rgba(245,200,66,0.25)}
+  .pdf-ann .ann-num{position:absolute;top:-9px;left:-9px;width:18px;height:18px;border-radius:50%;background:var(--accent-2);color:var(--ink);font-size:10px;font-weight:700;font-family:var(--mono);display:flex;align-items:center;justify-content:center;border:2px solid var(--paper)}
+
+  .pdf-page .footer{position:absolute;bottom:32px;left:52px;right:52px;font-size:9px;color:#aaa;border-top:1px solid #eee;padding-top:8px;display:flex;justify-content:space-between}
+
+  /* Parsed pane */
+  .parsed-pane{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:680px;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .parsed-h{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%)}
+  .parsed-h h3{margin:0;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .parsed-h .conf{display:flex;align-items:center;gap:6px;background:var(--ok);color:#fff;padding:3px 9px;border-radius:5px;font-size:11px;font-family:var(--mono);font-weight:600}
+  .parsed-h .conf .pulse{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .parsed-h .grow{flex:1}
+  .parsed-h .lk{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:6px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+
+  /* Cliente block (parsed) */
+  .cust{padding:14px 16px;border-bottom:1px solid var(--line-soft);background:var(--paper-2);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+  .cust .f{display:flex;flex-direction:column;gap:3px}
+  .cust .f .lbl{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+  .cust .f .v{font-size:13px;font-weight:600;color:var(--ink)}
+  .cust .f .v.mono{font-family:var(--mono);font-size:12.5px}
+  .cust .f .pill-mini{display:inline-flex;align-items:center;gap:5px;background:var(--teal-soft);color:var(--primary);padding:2px 7px;border-radius:4px;font-size:10.5px;font-weight:600;width:fit-content;border:1px solid var(--teal)}
+
+  /* Items table parsed */
+  .it-wrap{flex:1;overflow:auto}
+  .it-h{display:grid;grid-template-columns:30px 36px 2.6fr 0.85fr 0.95fr 1.15fr 28px;gap:10px;padding:10px 16px;background:var(--paper-2);border-bottom:1px solid var(--line-soft);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;align-items:center;position:sticky;top:0;z-index:2}
+  .it-h > span{text-align:right}
+  .it-h > span.l{text-align:left}
+  .it-row{display:grid;grid-template-columns:30px 36px 2.6fr 0.85fr 0.95fr 1.15fr 28px;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:13px;cursor:pointer;position:relative}
+  .it-row:hover{background:var(--paper-2)}
+  .it-row.match{background:var(--teal-soft)}
+  .it-row.match:hover{background:#DAEAB8}
+  .it-row.warn{background:#FCEFB4}
+  .it-row.warn:hover{background:#F8E690}
+  .it-row.err{background:#F8DDC8}
+  .it-row.err:hover{background:#F2C9A8}
+
+  .it-row .ann-n{width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--ink);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--accent-2)}
+  .it-row .cat{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:var(--mono);border:1px solid var(--line-2)}
+  .it-row .cat.p{background:var(--primary-soft);color:var(--primary)}
+  .it-row .cat.h{background:var(--accent-soft);color:var(--accent-2)}
+  .it-row .cat.a{background:var(--teal-soft);color:var(--primary)}
+
+  .it-row .name{font-weight:500;color:var(--ink);font-size:13px;line-height:1.35}
+  .it-row .name .raw{font-size:10.5px;color:var(--ink-3);font-family:var(--mono);margin-top:3px;font-style:italic}
+  .it-row .sku-pill{display:inline-flex;align-items:center;gap:4px;background:var(--paper);border:1px solid var(--line-2);padding:1px 5px;border-radius:4px;font-size:10px;font-family:var(--mono);color:var(--ink-2);margin-top:3px;font-weight:500;font-style:normal}
+  .it-row .sku-pill.confirmed{background:var(--teal-soft);border-color:var(--teal);color:var(--primary)}
+  .it-row .sku-pill.warn{background:#FCEFB4;border-color:var(--accent-2);color:#7a5e10}
+
+  .it-row .qty-edit{display:flex;align-items:center;gap:0;background:var(--paper);border:1px solid var(--line-2);border-radius:6px;justify-content:flex-end;width:fit-content;margin-left:auto}
+  .it-row .qty-edit button{border:none;background:transparent;width:22px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-3);font-family:inherit}
+  .it-row .qty-edit button:hover{color:var(--ink);background:var(--paper-2)}
+  .it-row .qty-edit input{width:38px;text-align:center;border:none;background:transparent;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink);padding:3px 0;outline:none}
+
+  .it-row .price{font-family:var(--mono);font-size:12.5px;text-align:right;color:var(--ink-2)}
+  .it-row .price .pu{display:block;color:var(--ink-3);font-size:10.5px;margin-bottom:1px}
+
+  .it-row .stk{font-family:var(--mono);font-size:11px;text-align:right}
+  .it-row .stk .lvl{font-weight:600;color:var(--ok)}
+  .it-row .stk .lvl.warn{color:var(--warn)}
+  .it-row .stk .lvl.crit{color:var(--crit)}
+  .it-row .stk .sub{color:var(--ink-3);font-size:10px;margin-top:1px}
+
+  .it-row .x{width:24px;height:24px;border-radius:5px;border:1px solid transparent;background:transparent;color:var(--ink-3);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto}
+  .it-row:hover .x{border-color:var(--line-soft);background:var(--paper)}
+  .it-row .x:hover{color:var(--crit);border-color:var(--crit)}
+
+  /* Issue badges below row */
+  .issue{padding:7px 16px 11px;background:#FFF8E0;border-bottom:1px solid var(--line-soft);font-size:11.5px;color:#7a5e10;display:flex;align-items:center;gap:8px;border-top:1px dashed var(--accent-2)}
+  .issue.err{background:#FBEEE0;color:#7a3a1c;border-top-color:var(--crit)}
+  .issue .a{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--paper);border:1px solid var(--line-2);border-radius:5px;color:var(--ink);font-weight:500;cursor:pointer;font-size:11.5px;margin-left:auto;flex-shrink:0}
+  .issue .a:hover{border-color:var(--primary)}
+  .issue .a.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+
+  /* Footer summary */
+  .summary{padding:14px 18px;border-top:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:18px;align-items:center}
+  .summary .stat .lbl{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:2px}
+  .summary .stat .v{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink)}
+  .summary .stat .v.usd{color:var(--primary);font-size:22px}
+  .summary .stat .sub{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+
+  .summary .actions{display:flex;gap:8px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:7px;border:1px solid var(--line-soft);background:var(--paper);color:var(--ink);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+  .btn.primary:hover{background:var(--primary-2)}
+  .btn:hover{background:var(--paper-2)}
+
+  /* Drag overlay (off by default but in DOM for demo) */
+  .dropzone{position:fixed;inset:0;background:rgba(31,40,24,0.78);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  .dropzone.show{display:flex}
+  .dropzone .box{background:var(--paper);border:3px dashed var(--accent);border-radius:18px;padding:48px 64px;text-align:center;max-width:520px}
+  .dropzone .box svg{margin-bottom:14px;color:var(--accent-2)}
+  .dropzone .box h2{margin:0 0 6px;font-size:22px;color:var(--ink);font-weight:600}
+  .dropzone .box p{margin:0;color:var(--ink-3);font-size:13px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="wintech-shell.jsx"></script>
+
+<script type="text/babel">
+const PARSED_ITEMS = [
+  { ann: 1, cat: "p", name: "Marco Wintech 58 Blanco · barra 6m", raw: "Marco WT 58 BCO X 6M", sku: "WT-58-7001", skuConf: "match", qty: 80, pu: 18.40, stk: 240, stkLvl: "ok", note: null },
+  { ann: 2, cat: "p", name: "Hoja batiente 58 con refuerzo · barra 6m", raw: "Hoja bat. 58 c/ref 6m", sku: "WT-58-7012", skuConf: "match", qty: 60, pu: 22.10, stk: 180, stkLvl: "ok", note: null },
+  { ann: 3, cat: "h", name: "Cremona oscilobatiente Roto NT", raw: "Cremona OB Roto", sku: "HRJ-CR-0042", skuConf: "warn", qty: 40, pu: 41.50, stk: 18, stkLvl: "warn", note: "warn", noteText: "SKU sugerido por similitud — verificá: existen 2 variantes Roto NT (estándar / reforzada)" },
+  { ann: 4, cat: "p", name: "Junco soldable 70 · negro EPDM · rollo 50m", raw: "Junco sold 70 negro x 50m", sku: "WT-70-3204", skuConf: "match", qty: 12, pu: 6.20, stk: 84, stkLvl: "ok", note: null, ppu: "rollo" },
+  { ann: 5, cat: "h", name: "Bisagra carga pesada 80kg", raw: "Bisagra 80kg", sku: "HRJ-BG-1108", skuConf: "match", qty: 50, pu: 14.80, stk: 4, stkLvl: "crit", note: "warn", noteText: "Stock crítico: 4 disponibles, faltan 46 — el resto se reserva contra IMP-2026-005 (ETA 22 mar)" },
+  { ann: 6, cat: "a", name: null, raw: "Tornillo aut. 4.2 x 25 caja x 1000", sku: null, skuConf: null, qty: 8, pu: null, stk: null, stkLvl: null, note: "err", noteText: "No se encontró match en catálogo — ¿es producto nuevo? ¿Querés que lo cree o asignar uno existente?" },
+];
+
+function App(){
+  const [active, setActive] = React.useState("Pedidos");
+  const [items, setItems] = React.useState(PARSED_ITEMS);
+  const [zoom, setZoom] = React.useState(100);
+  const [selected, setSelected] = React.useState(2);
+
+  const totalUsd = items.reduce((s, it) => s + (it.pu ? it.pu * it.qty : 0), 0);
+  const totalLines = items.length;
+  const matched = items.filter(it => it.skuConf === "match").length;
+  const issues = items.filter(it => it.note).length;
+  const totalQty = items.reduce((s, it) => s + it.qty, 0);
+
+  const updateQty = (i, delta) => setItems(items.map((it, idx) => idx === i ? { ...it, qty: Math.max(0, it.qty + delta) } : it));
+  const removeRow = (i) => setItems(items.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="app" data-screen-label="03 Cargar PDF IA">
+      <Sidebar active={active} onNav={setActive} />
+      <div className="main">
+        <Topbar
+          crumbs={["Wintech AR", "Pedidos", "Cargar PDF"]}
+          actions={<>
+            <button className="tb-btn"><IcDoc size={14} /> Ver PDF original</button>
+            <button className="tb-btn"><IcMagic size={14} /> Re-procesar con IA</button>
+          </>}
+        />
+
+        <div className="content">
+          <div className="page-h">
+            <div>
+              <h1>Cargar pedido por PDF</h1>
+              <p className="lede">Revisá lo que la IA extrajo del PDF antes de confirmar. Podés ajustar cantidades, corregir SKUs y resolver issues. El pedido queda como borrador hasta que lo confirmes.</p>
+            </div>
+            <div className="right">
+              <span className="pill"><span className="dot"></span>Borrador · auto-guarda</span>
+            </div>
+          </div>
+
+          {/* IA banner */}
+          <div className="ia-banner">
+            <div className="ia-ic"><IcMagic size={22} /></div>
+            <div className="ia-body">
+              <div className="t">IA procesó el PDF en 3.2s <span className="tag">Claude Haiku</span></div>
+              <div className="s">Detecté <b>6 líneas</b>, mapeé <b>{matched} de 6</b> a productos del catálogo, y marqué <b>{issues} para revisar</b>. Cliente reconocido: <b>Aberturas del Centro S.A.</b> (cuenta corriente activa).</div>
+            </div>
+            <div className="ia-stats">
+              <div><b>6</b>líneas extraídas</div>
+              <div><b>{matched}/6</b>matched</div>
+              <div><b>{issues}</b>requieren revisión</div>
+            </div>
+          </div>
+
+          {/* Split */}
+          <div className="split">
+            {/* PDF preview */}
+            <div className="pdf-pane">
+              <div className="pdf-h">
+                <div className="file-ic">PDF</div>
+                <div className="meta">
+                  <div className="name">Pedido_AberturasCentro_2026-03-04.pdf</div>
+                  <div className="sub">248 KB · 1 página · subido hace 12 segundos</div>
+                </div>
+                <div className="zoom">
+                  <button onClick={() => setZoom(Math.max(60, zoom - 10))}><IcMinus size={12} /></button>
+                  <span className="pct">{zoom}%</span>
+                  <button onClick={() => setZoom(Math.min(150, zoom + 10))}><IcPlus size={12} /></button>
+                </div>
+                <button className="tb-btn" style={{ padding: "5px 9px" }}><IcDown size={12} /></button>
+              </div>
+              <div className="pdf-body">
+                <div className="pdf-page" style={{ transform: `scale(${zoom/100})`, transformOrigin: "top center" }}>
+                  <div className="doc-h">
+                    <div className="logo">Aberturas del Centro <small>Fabricación · Córdoba</small></div>
+                    <div className="info">
+                      <b>Pedido N° 2547</b>
+                      04 / marzo / 2026<br />
+                      CUIT 30-71284563-9
+                    </div>
+                  </div>
+
+                  <h2>Datos del pedido <span className="tag">Compra a Wintech AR</span></h2>
+                  <div className="blk">
+                    <div className="row"><span className="l">Cliente:</span><span className="v">Aberturas del Centro S.A.</span></div>
+                    <div className="row"><span className="l">Contacto:</span><span className="v">Pablo Sánchez · pablo@aberturascentro.com.ar</span></div>
+                    <div className="row"><span className="l">Entrega:</span><span className="v">22 / marzo / 2026 (a coordinar)</span></div>
+                    <div className="row"><span className="l">Pago:</span><span className="v">Cta. Cte. 30 días</span></div>
+                  </div>
+
+                  <h2>Detalle de productos</h2>
+                  <table>
+                    <thead><tr><th>Cód.</th><th>Descripción</th><th style={{ textAlign: "right" }}>Cant.</th><th style={{ textAlign: "right" }}>U$D u.</th></tr></thead>
+                    <tbody>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">WT-58-7001</span></td>
+                        <td>Marco WT 58 BCO X 6M</td>
+                        <td className="r">80</td>
+                        <td className="r">18,40</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2 }}><div className="ann-num">1</div></div>
+                      </tr>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">WT-58-7012</span></td>
+                        <td>Hoja bat. 58 c/ref 6m</td>
+                        <td className="r">60</td>
+                        <td className="r">22,10</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2 }}><div className="ann-num">2</div></div>
+                      </tr>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">—</span></td>
+                        <td>Cremona OB Roto</td>
+                        <td className="r">40</td>
+                        <td className="r">41,50</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2, borderColor: "var(--warn)", background: "rgba(216,144,32,0.18)" }}><div className="ann-num" style={{ background: "var(--warn)", color: "#fff" }}>3</div></div>
+                      </tr>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">WT-70-3204</span></td>
+                        <td>Junco sold 70 negro x 50m</td>
+                        <td className="r">12</td>
+                        <td className="r">6,20</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2 }}><div className="ann-num">4</div></div>
+                      </tr>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">HRJ-BG-1108</span></td>
+                        <td>Bisagra 80kg</td>
+                        <td className="r">50</td>
+                        <td className="r">14,80</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2, borderColor: "var(--warn)", background: "rgba(216,144,32,0.18)" }}><div className="ann-num" style={{ background: "var(--warn)", color: "#fff" }}>5</div></div>
+                      </tr>
+                      <tr style={{ position: "relative" }}>
+                        <td><span className="code">—</span></td>
+                        <td>Tornillo aut. 4.2 x 25 caja x 1000</td>
+                        <td className="r">8</td>
+                        <td className="r">—</td>
+                        <div className="pdf-ann" style={{ top: -2, left: -8, right: -8, bottom: -2, borderColor: "var(--crit)", background: "rgba(160,59,30,0.16)" }}><div className="ann-num" style={{ background: "var(--crit)", color: "#fff" }}>6</div></div>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div style={{ marginTop: 18, fontSize: 10, color: "#666" }}>Observaciones: confirmar disponibilidad de bisagras antes del 12/03. Si falta algún ítem, avisar para reemplazar.</div>
+
+                  <div className="footer">
+                    <span>Aberturas del Centro S.A. · Av. Colón 4520 · Córdoba</span>
+                    <span>Pág. 1 / 1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Parsed pane */}
+            <div className="parsed-pane">
+              <div className="parsed-h">
+                <h3>Items extraídos</h3>
+                <span className="conf"><span className="pulse"></span>{Math.round((matched/6)*100)}% confianza</span>
+                <div className="grow"></div>
+                <button className="lk"><IcPlus size={11} /> Agregar manual</button>
+              </div>
+
+              {/* Cliente extraído */}
+              <div className="cust">
+                <div className="f">
+                  <span className="lbl">Cliente</span>
+                  <span className="v">Aberturas del Centro S.A.</span>
+                  <span className="pill-mini"><IcCheck size={10} /> Cta. cte. activa</span>
+                </div>
+                <div className="f">
+                  <span className="lbl">CUIT</span>
+                  <span className="v mono">30-71284563-9</span>
+                </div>
+                <div className="f">
+                  <span className="lbl">Entrega</span>
+                  <span className="v">22 mar 2026</span>
+                  <span style={{ fontSize: 10.5, color: "var(--ink-3)", fontFamily: "var(--mono)" }}>en 18 días</span>
+                </div>
+                <div className="f">
+                  <span className="lbl">Forma de pago</span>
+                  <span className="v">Cta. Cte. 30 días</span>
+                </div>
+              </div>
+
+              <div className="it-h">
+                <span></span>
+                <span></span>
+                <span className="l">Producto</span>
+                <span>Cant.</span>
+                <span>USD</span>
+                <span>Stock</span>
+                <span></span>
+              </div>
+
+              <div className="it-wrap">
+                {items.map((it, i) => {
+                  const cls = it.note === "err" ? "err" : it.note === "warn" ? "warn" : "match";
+                  return (
+                    <React.Fragment key={i}>
+                      <div className={`it-row ${cls}`} onClick={() => setSelected(i)}>
+                        <div className="ann-n">{it.ann}</div>
+                        <div className={`cat ${it.cat}`}>{it.cat.toUpperCase()}</div>
+                        <div className="name">
+                          {it.name || <span style={{ color: "var(--crit)", fontStyle: "italic", fontWeight: 500 }}>Sin match · "{it.raw}"</span>}
+                          {it.name && <div className="raw">PDF: "{it.raw}"</div>}
+                          {it.sku && (
+                            <span className={`sku-pill ${it.skuConf === "match" ? "confirmed" : "warn"}`}>
+                              {it.skuConf === "match" ? <IcCheck size={9} /> : <IcAlert size={9} />}
+                              {it.sku}
+                            </span>
+                          )}
+                        </div>
+                        <div className="qty-edit" onClick={e => e.stopPropagation()}>
+                          <button onClick={() => updateQty(i, -1)}><IcMinus size={11} /></button>
+                          <input value={it.qty} onChange={() => {}} />
+                          <button onClick={() => updateQty(i, +1)}><IcPlus size={11} /></button>
+                        </div>
+                        <div className="price">
+                          <span className="pu">u/ {it.pu ? it.pu.toFixed(2) : "—"}</span>
+                          {it.pu ? (it.pu * it.qty).toLocaleString("es-AR", { maximumFractionDigits: 2 }) : "—"}
+                        </div>
+                        <div className="stk">
+                          {it.stk !== null ? <>
+                            <span className={`lvl ${it.stkLvl}`}>{it.stk}</span>
+                            <div className="sub">disp.</div>
+                          </> : <span style={{ color: "var(--ink-3)" }}>—</span>}
+                        </div>
+                        <button className="x" onClick={e => { e.stopPropagation(); removeRow(i); }}><IcX size={12} /></button>
+                      </div>
+                      {it.noteText && (
+                        <div className={`issue ${it.note === "err" ? "err" : ""}`}>
+                          <IcAlert size={13} style={{ flexShrink: 0 }} />
+                          <span>{it.noteText}</span>
+                          {it.note === "err" ? <>
+                            <button className="a">Asignar SKU existente</button>
+                            <button className="a primary">Crear producto</button>
+                          </> : <>
+                            <button className="a">Cambiar SKU</button>
+                            <button className="a primary">Confirmar igual</button>
+                          </>}
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              <div className="summary">
+                <div className="stat">
+                  <div className="lbl">Líneas</div>
+                  <div className="v">{totalLines}</div>
+                  <div className="sub">{totalQty} unidades</div>
+                </div>
+                <div className="stat">
+                  <div className="lbl">Por revisar</div>
+                  <div className="v" style={{ color: issues > 0 ? "var(--warn)" : "var(--ok)" }}>{issues}</div>
+                  <div className="sub">{issues > 0 ? "antes de confirmar" : "todo ok"}</div>
+                </div>
+                <div className="stat">
+                  <div className="lbl">Total estimado</div>
+                  <div className="v usd">USD {totalUsd.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</div>
+                  <div className="sub">sin IVA · cta. cte. 30d</div>
+                </div>
+                <div className="actions">
+                  <button className="btn">Guardar borrador</button>
+                  <button className="btn primary"><IcCheck size={13} /> Confirmar pedido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="app-foot">
+            <span>PED-2026-018 · borrador auto-guardado</span>
+            <span>·</span>
+            <span>Origen: PDF IA (Claude Haiku · 3.2s)</span>
+            <div className="grow"></div>
+            <span>Drag & drop de PDF disponible en cualquier pantalla — atajo ⌘U</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

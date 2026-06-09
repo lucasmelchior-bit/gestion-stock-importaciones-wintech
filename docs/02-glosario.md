@@ -31,6 +31,28 @@ variables, tablas y funciones de forma consistente, y para entender el dominio.
 | barra | `bar` | Unidad de venta de los perfiles. |
 | unidad / juego | `unit` / `set` | Unidad de venta de herrajes/ruedas. |
 
+## Términos del diseño "Jardín de San José" (Fase 2+)
+
+> Incorporados al adoptar el diseño como norte (ver `adr/0005`). Identificadores de código en
+> inglés; la UI los muestra en español.
+
+| Español (negocio / UI) | Identificador en código (inglés) | Qué es |
+|------------------------|----------------------------------|--------|
+| familia | `family` | Clasificación gruesa del producto: `perfil` / `herraje` / `accesorio`. |
+| línea | `line` | Línea/sistema del producto. Ej.: "Wintech 58", "Wintech 70". |
+| color | `color` | Color/terminación. Ej.: "Blanco", "Símil madera". |
+| peso unitario | `weightKg` | Kilos por unidad de venta. Para llenar el contenedor de importación. |
+| volumen unitario | `volumeM3` | Metros cúbicos por unidad. Idem capacidad del contenedor. |
+| costo desembarcado | `landedCostUsd` | Costo real por SKU al recibir la importación (FOB + logística + aranceles prorrateados). |
+| margen objetivo | `targetMarginPct` | Margen buscado sobre el costo, por producto. |
+| stock objetivo | `targetStock` | Nivel al que se quiere reponer (distinto del mínimo, que dispara la alerta). |
+| importación | `import` (= `purchaseOrder` enriquecida) | Pedido al proveedor con timeline, costos logísticos, pagos y documentos. |
+| disponible | `available` | Lo que realmente se puede vender = `físico − reservado`. |
+| reservado | `reserved` | Físico comprometido en pedidos de venta confirmados, todavía no entregado. |
+| proveedor logístico | `logisticsProvider` | Forwarder / despachante / transportista / depósito (distinto del proveedor de mercadería). |
+| documento de importación | `importDocument` | Archivo del expediente de una importación (proforma, BL, despacho, etc.), versionado. |
+| costo desembarcado / landed cost | `landedCost` | (ver arriba) — término muy usado en el diseño. |
+
 ## Términos técnicos / del cálculo
 
 | Término | Significado |

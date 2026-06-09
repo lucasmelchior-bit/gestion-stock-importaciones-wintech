@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Arquitectura de Información</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAFAF7;
+    --ink:#2C3E50;
+    --ink-2:#54647A;
+    --ink-3:#8896A6;
+    --line:#E6E4DD;
+    --line-2:#EFEDE6;
+    --primary:#1e3a5f;
+    --primary-soft:#E8EEF5;
+    --teal:#0B8A8F;
+    --teal-soft:#E2F2F2;
+    --ok:#2F8A57;
+    --warn:#B07515;
+    --crit:#B83A2E;
+    --paper:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  a{color:inherit}
+
+  /* ============ Page shell ============ */
+  .page{max-width:1280px;margin:0 auto;padding:48px 56px 96px}
+  .crumbs{display:flex;gap:8px;align-items:center;color:var(--ink-3);font-size:12px;letter-spacing:.02em;text-transform:uppercase;font-weight:500}
+  .crumbs .sep{opacity:.5}
+  h1{font-size:36px;line-height:1.1;letter-spacing:-0.02em;font-weight:600;margin:14px 0 10px}
+  .lede{font-size:16px;color:var(--ink-2);max-width:780px;margin:0 0 8px}
+  .meta{display:flex;gap:18px;align-items:center;margin-top:22px;color:var(--ink-3);font-size:12px;letter-spacing:.02em}
+  .meta .dot{width:4px;height:4px;border-radius:50%;background:var(--ink-3);display:inline-block}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-size:11px;color:var(--ink-2);letter-spacing:.02em;text-transform:uppercase;font-weight:500}
+  .pill .pdot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+
+  /* section */
+  section.block{margin-top:56px}
+  .block-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .block-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+  .block-title{font-size:22px;font-weight:600;letter-spacing:-0.01em}
+  .block-sub{margin-left:auto;color:var(--ink-3);font-size:12px;letter-spacing:.02em;text-transform:uppercase}
+
+  /* ============ Decision row (TL;DR) ============ */
+  .decisions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .decision{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .decision .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+  .decision .v{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px;letter-spacing:-0.005em}
+  .decision .why{font-size:13px;color:var(--ink-2);line-height:1.5}
+
+  /* ============ Two-pane layout: nav preview + reasoning ============ */
+  .split{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
+
+  /* sidebar mock */
+  .sb{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 14px;font-size:13px;position:sticky;top:24px;box-shadow:0 1px 0 rgba(20,30,50,.02)}
+  .sb-head{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line-2);margin-bottom:10px}
+  .sb-logo{width:26px;height:26px;border-radius:7px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;letter-spacing:.02em}
+  .sb-brand{font-weight:600;letter-spacing:-0.005em}
+  .sb-brand small{display:block;color:var(--ink-3);font-weight:400;font-size:11px;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+  .sb-search{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;color:var(--ink-3);margin-bottom:14px;background:#FCFBF7}
+  .sb-search .grow{flex:1;font-size:12px}
+  .sb-search .kbd{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);border:1px solid var(--line);padding:1px 5px;border-radius:4px;background:#fff}
+  .sb-group{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:14px 8px 6px;font-weight:600}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;color:var(--ink);cursor:default;position:relative}
+  .sb-item:hover{background:#F4F2EB}
+  .sb-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
+  .sb-item .ic{width:16px;height:16px;flex:0 0 16px;color:var(--ink-2)}
+  .sb-item.active .ic{color:var(--primary)}
+  .sb-item .lbl{flex:1}
+  .sb-item .badge{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--crit);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600}
+  .sb-item .badge.amber{background:var(--warn)}
+  .sb-item .badge.muted{background:#E6E4DD;color:var(--ink-2)}
+  .sb-item .kbd-mini{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);border:1px solid var(--line);padding:0 4px;border-radius:3px;opacity:0;transition:opacity .15s}
+  .sb-item:hover .kbd-mini{opacity:1}
+  .sb-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:10px}
+  .sb-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--primary));color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+  .sb-foot .who{font-size:12px}
+  .sb-foot .who small{display:block;color:var(--ink-3);font-size:10px}
+
+  /* reasoning column */
+  .reason h3{margin:0 0 6px;font-size:14px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-3)}
+  .reason h3 .num{font-family:'JetBrains Mono',monospace;color:var(--teal);margin-right:8px}
+  .reason p{margin:0 0 16px;color:var(--ink-2);font-size:13.5px;max-width:640px}
+  .reason ul{margin:0 0 22px;padding:0;list-style:none}
+  .reason li{position:relative;padding:6px 0 6px 20px;color:var(--ink-2);font-size:13.5px;border-bottom:1px dashed var(--line-2)}
+  .reason li:last-child{border-bottom:none}
+  .reason li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:1px;background:var(--ink-3)}
+  .reason li b{color:var(--ink);font-weight:600}
+  .reason .cite{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);margin-left:6px}
+
+  /* ============ Modules table ============ */
+  .modtable{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .modtable .row{display:grid;grid-template-columns:36px 1.2fr 2fr 2fr 90px;gap:0;border-bottom:1px solid var(--line-2);align-items:stretch}
+  .modtable .row:last-child{border-bottom:none}
+  .modtable .row.head{background:#F6F3EC;color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .modtable .row > div{padding:14px 16px;border-right:1px solid var(--line-2)}
+  .modtable .row > div:last-child{border-right:none}
+  .modtable .row.head > div{padding:11px 16px}
+  .modtable .num{font-family:'JetBrains Mono',monospace;color:var(--ink-3);font-size:12px;display:flex;align-items:center}
+  .modtable .name{font-weight:600;letter-spacing:-0.005em;display:flex;flex-direction:column;justify-content:center}
+  .modtable .name small{font-weight:400;color:var(--ink-3);font-size:11.5px;letter-spacing:.02em;text-transform:uppercase;margin-top:2px;font-family:'JetBrains Mono',monospace}
+  .modtable .desc{color:var(--ink-2);font-size:13px;display:flex;align-items:center}
+  .modtable .why-cell{color:var(--ink-2);font-size:12.5px;font-style:italic;display:flex;align-items:center;background:#FCFBF7}
+  .modtable .pri-cell{display:flex;align-items:center;justify-content:center}
+  .pri{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+  .pri .bar{display:inline-block;width:24px;height:6px;border-radius:1px;background:var(--line)}
+  .pri.p1 .bar{background:var(--primary)}
+  .pri.p2 .bar{background:var(--teal)}
+  .pri.p3 .bar{background:#A5B3C2}
+
+  /* ============ Hierarchy diagram ============ */
+  .tree{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:24px 28px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.95;color:var(--ink)}
+  .tree .root{font-weight:700;color:var(--primary)}
+  .tree .grp{color:var(--ink-3);text-transform:uppercase;font-size:11px;letter-spacing:.08em;margin-top:8px;display:block}
+  .tree .lvl1{color:var(--ink)}
+  .tree .lvl2{color:var(--ink-2)}
+  .tree .arrow{color:var(--teal)}
+  .tree .note{color:var(--ink-3);font-style:italic;font-family:'Inter',sans-serif;margin-left:8px;font-size:12px}
+
+  /* ============ Shortcuts grid ============ */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .panel h4{margin:0 0 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:flex;align-items:center;gap:8px}
+  .panel h4 .tag{padding:1px 6px;border-radius:4px;background:var(--teal-soft);color:var(--teal);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.02em;text-transform:none}
+  .kbdline{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line-2);font-size:13px}
+  .kbdline:last-child{border-bottom:none}
+  .kbdline .keys{display:flex;gap:4px;flex:0 0 110px}
+  .kbdline .desc{color:var(--ink-2);flex:1}
+  .key{font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--line);background:#FCFBF7;padding:2px 7px;border-radius:5px;color:var(--ink);font-weight:500;box-shadow:0 1px 0 var(--line)}
+
+  /* ============ Patterns ============ */
+  .patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .pat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .pat-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:.04em}
+  .pat h5{margin:4px 0 8px;font-size:15px;font-weight:600;letter-spacing:-0.005em}
+  .pat p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.55}
+
+  /* ============ Footer ============ */
+  .footer{margin-top:64px;padding:24px;border:1px dashed var(--line);border-radius:12px;background:#F6F3EC;display:flex;align-items:center;gap:18px}
+  .footer .step{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .footer p{margin:4px 0 0;color:var(--ink);font-size:14px}
+  .footer .ctas{margin-left:auto;display:flex;gap:8px}
+  .btn{padding:9px 14px;border-radius:7px;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .btn.primary:hover{background:#16304F}
+  .btn:hover{background:#F4F2EB}
+
+  /* simple icons */
+  svg.ic{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+  /* small responsive concession */
+  @media (max-width:1100px){
+    .split{grid-template-columns:1fr}
+    .sb{position:static}
+    .decisions{grid-template-columns:1fr}
+    .modtable .row{grid-template-columns:36px 1.2fr 2fr 90px}
+    .modtable .why-cell{display:none}
+    .grid-2,.patterns{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <!-- ============ Header ============ -->
+  <div class="crumbs">
+    <span>Wintech Argentina</span>
+    <span class="sep">/</span>
+    <span>Sistema de Stock e Importaciones</span>
+    <span class="sep">/</span>
+    <span style="color:var(--ink)">Arquitectura de Información</span>
+  </div>
+  <h1>Cómo se organiza el sistema</h1>
+  <p class="lede">Antes de mockups: la propuesta de navegación, agrupamiento de módulos, jerarquía y atajos. Pensada para uso diario, una sola persona operando, foco en velocidad y reducción de fricción.</p>
+  <div class="meta">
+    <span class="pill"><span class="pdot"></span>Paso 1 · Esperando aprobación</span>
+    <span class="dot"></span><span>10 módulos · 1 sidebar fijo · 1 top-bar contextual</span>
+    <span class="dot"></span><span>~9 min de lectura</span>
+  </div>
+
+  <!-- ============ TL;DR Decisiones ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">00</span>
+      <span class="block-title">TL;DR — tres decisiones que mandan todo lo demás</span>
+    </div>
+    <div class="decisions">
+      <div class="decision">
+        <div class="k">Navegación</div>
+        <div class="v">Sidebar fijo izquierdo + top-bar contextual</div>
+        <div class="why">El sidebar da acceso constante a 10 módulos sin esconderlos en menúes. El top-bar absorbe búsqueda global, acciones de la pantalla actual, breadcrumbs y notificaciones.</div>
+      </div>
+      <div class="decision">
+        <div class="k">Agrupamiento</div>
+        <div class="v">3 grupos: Operación · Catálogo · Análisis</div>
+        <div class="why">Refleja el día a día (qué tengo que hacer ahora) vs. el qué vendo (datos maestros) vs. el cómo me va (decisiones). Encaja con cómo describiste tu negocio, no con cómo está armado un ERP genérico.</div>
+      </div>
+      <div class="decision">
+        <div class="k">Atajo de poder</div>
+        <div class="v">Cmd+K como columna vertebral</div>
+        <div class="why">Búsqueda global + paleta de comandos + drag-and-drop de PDF en cualquier pantalla. Tres patrones que aplastan el tiempo de las tareas frecuentes ("¿tengo este producto?" en &lt;2 segundos).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Layout: nav + reasoning ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">01</span>
+      <span class="block-title">Layout principal y navegación</span>
+      <span class="block-sub">vista previa interactiva del sidebar</span>
+    </div>
+
+    <div class="split">
+
+      <!-- Sidebar mock -->
+      <aside class="sb" aria-label="Sidebar mock">
+        <div class="sb-head">
+          <div class="sb-logo">W</div>
+          <div class="sb-brand">Wintech AR<small>Stock & Imports</small></div>
+        </div>
+
+        <div class="sb-search">
+          <svg class="ic" width="14" height="14" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="grow">Buscar producto, importación…</span>
+          <span class="kbd">⌘K</span>
+        </div>
+
+        <div class="sb-group">Operación</div>
+        <div class="sb-item active">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          <span class="lbl">Dashboard</span>
+          <span class="kbd-mini">G D</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M3 7h13l3 4v6H3z"/><circle cx="7" cy="17" r="2"/><circle cx="16" cy="17" r="2"/></svg>
+          <span class="lbl">Importaciones</span>
+          <span class="badge amber">3</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M4 4h16v4H4z"/><path d="M6 8v12h12V8"/><path d="M9 12h6"/></svg>
+          <span class="lbl">Pedidos</span>
+          <span class="kbd-mini">G P</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M3 7v10l9 4 9-4V7l-9-4z"/><path d="m3 7 9 4 9-4"/><path d="M12 11v10"/></svg>
+          <span class="lbl">Stock & Alertas</span>
+          <span class="badge">7</span>
+        </div>
+
+        <div class="sb-group">Catálogo</div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h6v6h-6z"/></svg>
+          <span class="lbl">Productos</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
+          <span class="lbl">Proveedores logísticos</span>
+        </div>
+
+        <div class="sb-group">Análisis</div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-7"/></svg>
+          <span class="lbl">Rentabilidad</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><rect x="4" y="10" width="3" height="10"/><rect x="10" y="6" width="3" height="14"/><rect x="16" y="13" width="3" height="7"/></svg>
+          <span class="lbl">Estadísticas</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span class="lbl">Gastos operativos</span>
+        </div>
+
+        <div class="sb-group">Sistema</div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.97 7.97 0 0 0 0-6l2-1.5-2-3.4-2.4 1a8 8 0 0 0-5-3L11.5 0h-3l-.5 2.1a8 8 0 0 0-5 3l-2.4-1-2 3.4 2 1.5a7.97 7.97 0 0 0 0 6l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 5 3l.5 2.1h3l.5-2.1a8 8 0 0 0 5-3l2.4 1 2-3.4z"/></svg>
+          <span class="lbl">Configuración</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4"/><path d="M12 17v.01"/></svg>
+          <span class="lbl">Auditoría</span>
+        </div>
+
+        <div class="sb-foot">
+          <div class="sb-avatar">LP</div>
+          <div class="who">Lucas P.<small>Dueño · Córdoba</small></div>
+        </div>
+      </aside>
+
+      <!-- Reasoning -->
+      <div class="reason">
+        <h3><span class="num">A.</span>Por qué sidebar fijo (y no top nav)</h3>
+        <p>10 módulos no entran en una top nav sin colapsar a "Más…". El sidebar es la convención que ya usás (Linear, Notion, Stripe, Vercel) y mantiene los 10 módulos visibles permanentemente. Reduce carga cognitiva: nunca hay duda de "¿dónde estaba esa pantalla?".</p>
+
+        <h3><span class="num">B.</span>Los tres grupos del sidebar</h3>
+        <ul>
+          <li><b>Operación</b> — Dashboard, Importaciones, Pedidos, Stock. Lo que tocás <em>todos los días</em>. Va arriba porque es donde pasás el 80% del tiempo.<span class="cite">// frecuencia de uso</span></li>
+          <li><b>Catálogo</b> — Productos, Proveedores logísticos. Datos maestros. Se tocan ocasionalmente, no merecen prioridad visual pero sí acceso directo.<span class="cite">// datos vs operación</span></li>
+          <li><b>Análisis</b> — Rentabilidad, Estadísticas, Gastos. Decisión, no operación. Separados a propósito para que no compitan con las tareas urgentes.<span class="cite">// modo "estoy pensando" vs "estoy haciendo"</span></li>
+        </ul>
+
+        <h3><span class="num">C.</span>Top-bar contextual (no global)</h3>
+        <p>La top-bar cambia según la pantalla: muestra breadcrumbs, acciones primarias (ej. "Nueva importación", "Cargar PDF"), filtros guardados y notificaciones. No tiene navegación duplicada — si está en el sidebar, no se repite arriba. Esto es lo opuesto al ERP clásico que llena la top-bar de menúes desplegables.</p>
+
+        <h3><span class="num">D.</span>Badges en el sidebar = sistema nervioso</h3>
+        <ul>
+          <li><b>Importaciones</b> con badge ámbar = importaciones que requieren tu atención (pago vencido, ETA por confirmar, etc.).</li>
+          <li><b>Stock</b> con badge rojo = cantidad de productos en estado crítico. Te lo grita desde donde estés.</li>
+          <li><b>Pedidos</b> sin badge = sin pendientes; cuando sube algo, aparece. Diseño "calma por default".</li>
+        </ul>
+
+        <h3><span class="num">E.</span>Pedidos como módulo separado (no anidado en Stock)</h3>
+        <p>En el brief original "Cargar pedido por PDF" venía como pantalla, no como módulo. Pero los pedidos son una <b>entidad de primera clase</b>: tienen estados, historial, vinculan cliente-fabricante con stock e importaciones. Merece módulo propio. La pantalla de carga por PDF vive adentro como acción primaria.</p>
+
+        <h3><span class="num">F.</span>Configuración + Auditoría al fondo</h3>
+        <p>Auditoría queda accesible (cumplimiento, "¿quién tocó qué?") pero fuera del flujo diario. Configuración alberga: usuarios, parámetros del contenedor (24t, % reserva), umbrales de stock crítico, integraciones (mail al fabricante, exportador a contador), formato de números/moneda.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Modules table ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">02</span>
+      <span class="block-title">Los 10 módulos, en orden</span>
+      <span class="block-sub">qué hace cada uno · por qué está donde está</span>
+    </div>
+
+    <div class="modtable">
+      <div class="row head">
+        <div>#</div>
+        <div>Módulo</div>
+        <div>Qué resuelve</div>
+        <div>Por qué en esta posición</div>
+        <div style="text-align:center">Prioridad</div>
+      </div>
+
+      <div class="row">
+        <div class="num">01</div>
+        <div class="name">Dashboard <small>/inicio</small></div>
+        <div class="desc">KPIs del día: stock crítico, importaciones en tránsito, pedidos pendientes, margen del mes, punto de equilibrio. Acciones rápidas.</div>
+        <div class="why-cell">Pantalla de aterrizaje. Responde "¿qué pasa hoy?" en 5 segundos.</div>
+        <div class="pri-cell"><span class="pri p1"><span class="bar"></span>P1</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">02</div>
+        <div class="name">Importaciones <small>/importaciones</small></div>
+        <div class="desc">Listado y detalle de cada importación con timeline de 9 estados, ruta (Mvd/BsAs), costos logísticos, pagos a Adopen, landed cost.</div>
+        <div class="why-cell">Pocas por año pero altísimo valor unitario. Es el corazón financiero del sistema.</div>
+        <div class="pri-cell"><span class="pri p1"><span class="bar"></span>P1</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">03</div>
+        <div class="name">Pedidos <small>/pedidos</small></div>
+        <div class="desc">Pedidos de fabricantes B2B. Carga por PDF con IA, revisión item a item, disponibilidad cruzada con stock e importaciones futuras.</div>
+        <div class="why-cell">Operación de alta frecuencia. Acepta el flujo A entero como entrada.</div>
+        <div class="pri-cell"><span class="pri p1"><span class="bar"></span>P1</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">04</div>
+        <div class="name">Stock & Alertas <small>/stock</small></div>
+        <div class="desc">Vista única de stock físico, reservado, disponible, en tránsito. Filtros por estado/proveedor/línea. Detalle con histórico de movimientos.</div>
+        <div class="why-cell">La verdad operativa. Todo cruza por acá.</div>
+        <div class="pri-cell"><span class="pri p1"><span class="bar"></span>P1</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">05</div>
+        <div class="name">Productos <small>/productos</small></div>
+        <div class="desc">ABM del catálogo (~450 ítems): perfiles, herrajes, accesorios. Línea, color, proveedor, costos históricos, precio venta.</div>
+        <div class="why-cell">Dato maestro. Cambia poco una vez cargado, pero todo apunta acá.</div>
+        <div class="pri-cell"><span class="pri p2"><span class="bar"></span>P2</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">06</div>
+        <div class="name">Proveedores logísticos <small>/proveedores</small></div>
+        <div class="desc">Forwarders marítimos, fletes terrestres, despachantes, depósitos. Cotizaciones históricas y comparación.</div>
+        <div class="why-cell">Sostiene la pestaña de costos en cada importación. Lo separé de "Productos" porque la entidad es distinta.</div>
+        <div class="pri-cell"><span class="pri p2"><span class="bar"></span>P2</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">07</div>
+        <div class="name">Rentabilidad <small>/rentabilidad</small></div>
+        <div class="desc">Margen bruto vs neto. Punto de equilibrio mensual. Productos con peor margen. Alerta si vendés a pérdida.</div>
+        <div class="why-cell">El "¿gano dinero de verdad?" que pediste. Merece módulo propio, no ser una pestaña.</div>
+        <div class="pri-cell"><span class="pri p1"><span class="bar"></span>P1</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">08</div>
+        <div class="name">Estadísticas <small>/stats</small></div>
+        <div class="desc">Top productos vendidos, rotación, comparativa de costos entre importaciones, evolución del flete marítimo.</div>
+        <div class="why-cell">Análisis de fondo, baja frecuencia pero alto valor. Distinto a Rentabilidad: esto mira tendencias, aquello mira hoy.</div>
+        <div class="pri-cell"><span class="pri p2"><span class="bar"></span>P2</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">09</div>
+        <div class="name">Gastos operativos <small>/gastos</small></div>
+        <div class="desc">Carga mensual: alquiler depósito, sueldos, combustible, embalaje. Alimenta el cálculo de overhead y margen neto.</div>
+        <div class="why-cell">Tarea recurrente pero secundaria. Se carga una vez al mes, idealmente con plantilla.</div>
+        <div class="pri-cell"><span class="pri p3"><span class="bar"></span>P3</span></div>
+      </div>
+
+      <div class="row">
+        <div class="num">10</div>
+        <div class="name">Auditoría <small>/auditoria</small></div>
+        <div class="desc">Log inmutable de cambios. Filtro por entidad, usuario, fecha. Accesible también desde "última modificación: hace 2h por Lucas" en cualquier detalle.</div>
+        <div class="why-cell">No es un módulo de uso diario sino una garantía. Aparece transversal en todas las pantallas de detalle.</div>
+        <div class="pri-cell"><span class="pri p3"><span class="bar"></span>P3</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Hierarchy tree ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">03</span>
+      <span class="block-title">Árbol de navegación completo</span>
+      <span class="block-sub">2 niveles · subrutas previstas</span>
+    </div>
+
+    <div class="tree">
+<span class="root">/</span>  <span class="note">→ redirige a /dashboard si hay sesión</span>
+│
+<span class="grp">━━ OPERACIÓN</span>
+├── <span class="lvl1">/dashboard</span>                          <span class="note">vista del día</span>
+├── <span class="lvl1">/importaciones</span>                      <span class="note">listado con filtros</span>
+│   ├── <span class="lvl2">/importaciones/nueva</span>            <span class="arrow">←</span> <span class="note">flujo "armar próxima importación" (sugerencias del sistema)</span>
+│   ├── <span class="lvl2">/importaciones/:id</span>              <span class="note">detalle: items, costos, pagos, timeline</span>
+│   └── <span class="lvl2">/importaciones/:id/recibir</span>      <span class="note">conciliación al arribo, calcula landed cost</span>
+├── <span class="lvl1">/pedidos</span>                            <span class="note">listado con filtros</span>
+│   ├── <span class="lvl2">/pedidos/nuevo</span>                  <span class="note">manual</span>
+│   ├── <span class="lvl2">/pedidos/cargar-pdf</span>             <span class="arrow">←</span> <span class="note">flujo IA · drag-and-drop</span>
+│   └── <span class="lvl2">/pedidos/:id</span>                    <span class="note">detalle, edición, reservas</span>
+└── <span class="lvl1">/stock</span>                              <span class="note">vista global</span>
+    ├── <span class="lvl2">/stock/criticos</span>                 <span class="note">vista guardada</span>
+    ├── <span class="lvl2">/stock/movimientos</span>              <span class="note">log unificado de entradas/salidas</span>
+    └── <span class="lvl2">/stock/:productoId</span>              <span class="note">drill-down con histórico</span>
+
+<span class="grp">━━ CATÁLOGO</span>
+├── <span class="lvl1">/productos</span>                          <span class="note">grid filtrable</span>
+│   ├── <span class="lvl2">/productos/nuevo</span>
+│   ├── <span class="lvl2">/productos/importar</span>             <span class="note">desde Excel/PDF</span>
+│   └── <span class="lvl2">/productos/:id</span>
+└── <span class="lvl1">/proveedores</span>                        <span class="note">forwarders, despachantes, etc.</span>
+    └── <span class="lvl2">/proveedores/:id</span>
+
+<span class="grp">━━ ANÁLISIS</span>
+├── <span class="lvl1">/rentabilidad</span>                       <span class="note">portada del módulo = dashboard rentab.</span>
+│   ├── <span class="lvl2">/rentabilidad/punto-equilibrio</span>
+│   └── <span class="lvl2">/rentabilidad/producto/:id</span>      <span class="note">evolución de costo y margen</span>
+├── <span class="lvl1">/stats</span>
+└── <span class="lvl1">/gastos</span>
+
+<span class="grp">━━ SISTEMA</span>  <span class="note">(footer del sidebar)</span>
+├── <span class="lvl1">/configuracion</span>
+│   ├── <span class="lvl2">/configuracion/parametros</span>       <span class="note">capacidad contenedor, umbrales</span>
+│   ├── <span class="lvl2">/configuracion/usuarios</span>
+│   └── <span class="lvl2">/configuracion/integraciones</span>
+└── <span class="lvl1">/auditoria</span>                          <span class="note">log filtrable global</span>
+    </div>
+  </section>
+
+  <!-- ============ Shortcuts ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">04</span>
+      <span class="block-title">Atajos globales</span>
+      <span class="block-sub">teclado primero · mouse después</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h4>Navegación <span class="tag">go-to</span></h4>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">K</span></span><span class="desc">Búsqueda global / paleta de comandos</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">G</span><span class="key">D</span></span><span class="desc">Ir a Dashboard</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">G</span><span class="key">I</span></span><span class="desc">Ir a Importaciones</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">G</span><span class="key">P</span></span><span class="desc">Ir a Pedidos</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">G</span><span class="key">S</span></span><span class="desc">Ir a Stock</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">G</span><span class="key">R</span></span><span class="desc">Ir a Rentabilidad</span></div>
+      </div>
+
+      <div class="panel">
+        <h4>Acciones <span class="tag">create</span></h4>
+        <div class="kbdline"><span class="keys"><span class="key">N</span></span><span class="desc">Nuevo (contextual: pedido / importación / producto según pantalla)</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">U</span></span><span class="desc">Subir PDF de pedido (drag-and-drop también funciona en cualquier pantalla)</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">Z</span></span><span class="desc">Deshacer última acción reversible</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">⇧</span><span class="key">Z</span></span><span class="desc">Rehacer</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">,</span></span><span class="desc">Configuración</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">?</span></span><span class="desc">Ver todos los atajos</span></div>
+      </div>
+
+      <div class="panel">
+        <h4>Listas y tablas <span class="tag">vim-style</span></h4>
+        <div class="kbdline"><span class="keys"><span class="key">J</span> / <span class="key">K</span></span><span class="desc">Mover selección abajo / arriba</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">↵</span></span><span class="desc">Abrir item seleccionado</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">/</span></span><span class="desc">Foco en búsqueda local de la lista</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">F</span></span><span class="desc">Toggle filtros</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">X</span></span><span class="desc">Marcar / desmarcar fila (multi-selección)</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">Esc</span></span><span class="desc">Cerrar panel / modal / cancelar selección</span></div>
+      </div>
+
+      <div class="panel">
+        <h4>Específicos del dominio <span class="tag">power-user</span></h4>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">I</span></span><span class="desc">"¿Tengo este producto?" — abre buscador con foco en disponibilidad</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">A</span></span><span class="desc">En sugerencia de importación: aceptar item sugerido</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">R</span></span><span class="desc">En sugerencia de importación: rechazar item</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">+</span> / <span class="key">-</span></span><span class="desc">Ajustar cantidad ±1 (con shift, ±10)</span></div>
+        <div class="kbdline"><span class="keys"><span class="key">⌘</span><span class="key">↵</span></span><span class="desc">Confirmar acción primaria de la pantalla (guardar borrador, confirmar pedido, etc.)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Patterns ============ -->
+  <section class="block">
+    <div class="block-head">
+      <span class="block-num">05</span>
+      <span class="block-title">Patrones transversales</span>
+      <span class="block-sub">aparecen en casi toda pantalla</span>
+    </div>
+
+    <div class="patterns">
+      <div class="pat">
+        <div class="pat-num">P · 01</div>
+        <h5>Drag-and-drop universal de PDF</h5>
+        <p>Soltar un PDF en <em>cualquier pantalla</em> dispara el flujo de "Cargar pedido". No hay que ir a Pedidos primero. La pantalla actual oscurece y muestra "Soltá acá para procesar el pedido". Un mismo gesto, siempre.</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 02</div>
+        <h5>Cmd+K como cerebro</h5>
+        <p>Búsqueda global (productos, importaciones, pedidos, proveedores) + paleta de comandos ("crear pedido", "ir a IMP-2026-005", "marcar como pagada"). Es el atajo que más vas a usar.</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 03</div>
+        <h5>Drill-down progresivo</h5>
+        <p>Listado → resumen lateral al seleccionar fila → click en abrir detalle completo. Tres niveles, nunca más. Vuelta atrás siempre con breadcrumbs visibles en top-bar.</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 04</div>
+        <h5>"Última modificación" en cada detalle</h5>
+        <p>Footer de cada pantalla de detalle muestra "Modificado hace 2h por Lucas" → click → drawer lateral con historial completo desde Auditoría, sin salir del contexto.</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 05</div>
+        <h5>Estados vacíos con CTA</h5>
+        <p>Nada de "no hay datos". Cada vacío explica qué viene después + un botón. Ej: lista de pedidos vacía → "Aún no cargaste pedidos. Soltá un PDF acá o creá uno manual."</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 06</div>
+        <h5>Toast + Undo</h5>
+        <p>Acciones reversibles (archivar, descartar item, ajustar cantidad) confirman con toast inferior con botón <span class="key">Deshacer</span>, 6 segundos. Solo lo irreversible (confirmar pago, cerrar importación) pide modal.</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 07</div>
+        <h5>USD primero, ARS de referencia</h5>
+        <p>Vendés en USD; las pantallas muestran USD como moneda principal en mono tabular. ARS aparece secundario en gris cuando hace sentido (gastos operativos, p.ej.).</p>
+      </div>
+      <div class="pat">
+        <div class="pat-num">P · 08</div>
+        <h5>Notificaciones del sistema, sutiles</h5>
+        <p>Campanita en top-bar. Eventos: ETA de importación cambió, pago vencido, stock cruzó umbral, IA terminó de procesar PDF. Con preferencias por tipo desde Configuración.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Footer / next step ============ -->
+  <div class="footer">
+    <div>
+      <div class="step">Siguiente · Paso 2</div>
+      <p>Si esta arquitectura te cierra, arranco con los mockups en este orden: <b>Dashboard → Armar próxima importación → Cargar pedido por PDF → Detalle de importación → Stock con disponibilidad futura → Rentabilidad</b>. Mockup por mockup, esperando tu feedback en cada uno.</p>
+    </div>
+    <div class="ctas">
+      <button class="btn">Pedir ajustes</button>
+      <button class="btn primary">Aprobar arquitectura</button>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

@@ -10,8 +10,10 @@
 - **SQLite** — base de datos en un único archivo local. Acceso vía el módulo **integrado
   `node:sqlite`** (`DatabaseSync`, síncrono): sin dependencias nativas ni compilación. Decidido en
   la Fase 1 (ver `adr/0004-sqlite-integrado-node.md`).
-- **HTML / CSS / JavaScript** — interfaz (renderer). Sin framework pesado en v1; si hace falta,
-  se evalúa y se registra en un ADR.
+- **React + Vite + TypeScript** — interfaz (renderer). Adoptado en la Fase 2 por la densidad del
+  diseño "Jardín de San José" (ver `adr/0006`). En dev, Vite dev server con HMR; en producción, un
+  build estático que Electron carga con `loadFile`. Fuentes (Inter + JetBrains Mono) empaquetadas
+  **localmente** (offline). Los procesos `main` y `preload` siguen en JavaScript/CommonJS.
 
 ## Procesos de Electron y su responsabilidad
 
@@ -19,7 +21,7 @@
 |---------|---------|-----------------|
 | `src/main/` | **main** | Ciclo de vida de la app, ventana, **conexión a SQLite**, registro de handlers IPC. Es el único que toca la base y el sistema de archivos. |
 | `src/preload/` | **preload** | Puente seguro (`contextBridge`) entre renderer y main. **Única superficie IPC**; cada canal documentado. Sin lógica de negocio. |
-| `src/renderer/` | **renderer** | La UI (HTML/CSS/JS). En español. No accede directo a la base: pide datos por IPC. Textos en un mapa `labels`. |
+| `src/renderer/` | **renderer** | La UI (React + Vite + TS). En español. No accede directo a la base: pide datos por IPC vía `window.api`. Textos en un mapa `labels`. Sigue el design system "Jardín de San José". |
 | `src/domain/` | (puro) | **Lógica de negocio pura**: pronóstico, reposición, cálculo de stock. **Sin Electron, sin SQL, sin UI.** Recibe datos y devuelve resultados. Testeable con tests unitarios. Implementa `docs/05`. |
 
 ## Flujo de datos (típico)
@@ -55,3 +57,5 @@ llama a domain, escribe en la base, responde por IPC). Así la matemática se te
 - `adr/0002-politica-idioma.md` — UI/docs en español, código en inglés.
 - `adr/0003-enfoque-pronostico.md` — por qué EWMA y v1 simple.
 - `adr/0004-sqlite-integrado-node.md` — por qué `node:sqlite` en vez de `better-sqlite3`.
+- `adr/0005-design-system-alcance.md` — adopción del diseño "Jardín de San José" y alcance ampliado.
+- `adr/0006-react-vite-renderer.md` — React + Vite + TS en el renderer.

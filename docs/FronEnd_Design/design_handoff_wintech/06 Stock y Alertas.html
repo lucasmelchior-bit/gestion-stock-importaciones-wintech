@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · Stock & Alertas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="wintech-shell.css" />
+<style>
+  /* Page header inline */
+  .ph{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:14px}
+  .ph h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;color:var(--ink)}
+  .ph .lede{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.45}
+  .ph .lede b{color:var(--ink);font-weight:600}
+
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:repeat(5, 1fr);gap:12px;margin-bottom:16px}
+  .kpi{background:var(--paper);border:1px solid var(--line-soft);border-radius:11px;padding:13px 14px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden}
+  .kpi:hover{border-color:var(--primary);transform:translateY(-1px)}
+  .kpi.active{border-color:var(--primary);background:linear-gradient(180deg, var(--paper) 0%, var(--primary-soft) 200%)}
+  .kpi.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary)}
+  .kpi .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-3);font-weight:600;display:flex;align-items:center;gap:5px}
+  .kpi .lab .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+  .kpi.crit .lab .dot{background:var(--crit)}
+  .kpi.warn .lab .dot{background:var(--warn)}
+  .kpi.ok .lab .dot{background:var(--ok)}
+  .kpi.tr .lab .dot{background:var(--teal)}
+  .kpi .v{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink);margin-top:6px;letter-spacing:-0.01em;font-variant-numeric:tabular-nums}
+  .kpi .sub{font-size:11px;color:var(--ink-3);margin-top:2px;font-family:var(--mono)}
+
+  /* Filter bar */
+  .filt{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+  .filt .search{flex:1;min-width:240px;position:relative}
+  .filt .search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--line-soft);border-radius:7px;font-family:inherit;font-size:13px;background:var(--paper);color:var(--ink);outline:none;box-sizing:border-box}
+  .filt .search input:focus{border-color:var(--primary)}
+  .filt .search input::placeholder{color:var(--ink-3)}
+  .filt .search .ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+  .filt .seg{display:flex;background:var(--paper);border:1px solid var(--line-soft);border-radius:7px;padding:3px;gap:2px}
+  .filt .seg button{border:none;background:transparent;font-family:inherit;font-size:12px;color:var(--ink-2);padding:5px 10px;border-radius:5px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:5px}
+  .filt .seg button.active{background:var(--primary);color:var(--lily);font-weight:600}
+  .filt .chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border:1px dashed var(--line-2);border-radius:7px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+  .filt .chip:hover{border-color:var(--primary);color:var(--primary)}
+  .filt .chip.applied{border-style:solid;background:var(--primary-soft);color:var(--ink);border-color:var(--line-2)}
+
+  /* Main split */
+  .split{display:grid;grid-template-columns:minmax(0, 1fr) 360px;gap:14px;align-items:start}
+
+  /* Table horizontal scroll fallback */
+  .tbl-scroll{overflow-x:auto}
+  table.stock{min-width:780px}
+
+  /* Stock table */
+  .tbl-wrap{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .tbl-h{padding:11px 16px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);display:flex;align-items:center;gap:10px}
+  .tbl-h h3{margin:0;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .tbl-h .sub{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+  .tbl-h .grow{flex:1}
+  .tbl-h .col-toggle{font-size:11px;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:4px}
+
+  table.stock{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  table.stock thead th{background:var(--paper-2);color:var(--ink-3);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:9px 8px;text-align:left;border-bottom:1px solid var(--line-soft);white-space:nowrap;cursor:pointer;user-select:none}
+  table.stock thead th:hover{color:var(--ink);background:var(--paper)}
+  table.stock thead th .arr{font-size:9px;color:var(--primary);margin-left:3px}
+  table.stock thead th.num{text-align:right}
+  table.stock tbody td{padding:11px 8px;border-bottom:1px solid var(--line-soft);vertical-align:middle;color:var(--ink)}
+  table.stock tbody tr{cursor:pointer;transition:background 0.1s}
+  table.stock tbody tr:hover{background:var(--paper-2)}
+  table.stock tbody tr.selected{background:var(--accent-soft)}
+  table.stock tbody tr.selected td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
+  table.stock tbody td.num{text-align:right;font-family:var(--mono);font-weight:500}
+  table.stock tbody td.muted{color:var(--ink-3)}
+  table.stock tbody td .sku{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:500}
+  table.stock tbody td .name{font-weight:500;color:var(--ink);font-size:12.5px;line-height:1.3}
+  table.stock tbody td .meta{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+
+  /* Estado dot */
+  .estado{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;font-family:var(--mono)}
+  .estado .d{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .estado.crit{color:var(--crit)} .estado.crit .d{background:var(--crit);box-shadow:0 0 0 3px rgba(160,59,30,0.15)}
+  .estado.bajo{color:var(--warn)} .estado.bajo .d{background:var(--warn)}
+  .estado.ok{color:var(--ok)} .estado.ok .d{background:var(--ok)}
+  .estado.over{color:var(--ink-3)} .estado.over .d{background:var(--ink-3)}
+
+  /* Sparkbar — mini gauge físico vs reservado vs disponible */
+  .gauge{display:flex;align-items:center;gap:6px;font-size:10.5px;font-family:var(--mono)}
+  .gauge .bar{flex:1;height:8px;border-radius:4px;background:var(--paper-2);position:relative;overflow:hidden;min-width:48px;border:1px solid var(--line-soft)}
+  .gauge .bar .res{position:absolute;left:0;top:0;bottom:0;background:var(--accent-2);opacity:0.55}
+  .gauge .bar .fis{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg, var(--eq-from), var(--eq-to))}
+  .gauge .bar .min{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--crit);opacity:0.7}
+  .gauge .v{color:var(--ink-2);font-weight:600;min-width:28px;text-align:right}
+
+  /* En tránsito badge */
+  .transit{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-family:var(--mono);color:var(--teal);font-weight:600;background:var(--teal-soft);padding:2px 7px;border-radius:4px}
+  .transit.dim{color:var(--ink-3);background:var(--paper-2);font-weight:500}
+
+  /* Trend mini */
+  .trend{display:flex;align-items:center;gap:4px;font-size:10.5px;font-family:var(--mono)}
+  .trend.up{color:var(--ok)}
+  .trend.dn{color:var(--crit)}
+  .trend svg{flex-shrink:0}
+
+  /* Action button on hover */
+  .row-act{display:none;gap:4px}
+  table.stock tbody tr:hover .row-act{display:inline-flex}
+  .row-act button{width:24px;height:24px;border:1px solid var(--line-soft);background:var(--paper);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-family:inherit}
+  .row-act button:hover{border-color:var(--primary);color:var(--primary)}
+
+  /* Section dividers in table */
+  tr.divider td{background:var(--paper-2);padding:7px 12px;font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+  tr.divider .ct{font-family:var(--mono);font-size:10px;color:var(--ink-3);font-weight:600;letter-spacing:0;background:var(--paper);padding:1px 6px;border-radius:3px;margin-left:6px;border:1px solid var(--line-soft)}
+
+  /* Right rail — drill-down panel */
+  .rail{position:sticky;top:78px;background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03);max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+  .rail-h{padding:14px 18px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%)}
+  .rail-h .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .rail-h .crit-badge{font-size:9.5px;background:var(--crit);color:#fff;padding:1.5px 6px;border-radius:3px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;font-family:var(--mono)}
+  .rail-h .grow{flex:1}
+  .rail-h .nav{display:flex;gap:2px}
+  .rail-h .nav button{width:24px;height:24px;border:1px solid var(--line-soft);background:var(--paper);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-family:inherit}
+  .rail-h .sku{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:500}
+  .rail-h h3{margin:6px 0 0 0;font-size:15px;font-weight:600;color:var(--ink);line-height:1.3}
+  .rail-h .sub{font-size:11.5px;color:var(--ink-2);margin-top:3px}
+
+  .rail-body{overflow-y:auto;flex:1}
+
+  .rail-section{padding:14px 18px;border-bottom:1px solid var(--line-soft)}
+  .rail-section:last-child{border-bottom:none}
+  .rail-section .lab{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);font-weight:600;margin-bottom:8px}
+
+  /* Stock breakdown */
+  .breakdown{display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;margin-bottom:10px}
+  .br-cell{background:var(--paper-2);border:1px solid var(--line-soft);border-radius:7px;padding:8px 9px}
+  .br-cell .l{font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-3);font-weight:600}
+  .br-cell .n{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
+  .br-cell .u{font-size:9.5px;color:var(--ink-3);font-family:var(--mono);margin-left:3px;font-weight:500}
+  .br-cell.disp{background:linear-gradient(180deg, #FBE7DC, #F4D5C2);border-color:#E5B89E}
+  .br-cell.disp .n{color:var(--crit)}
+
+  /* Projection chart */
+  .proj{position:relative;background:var(--paper-2);border:1px solid var(--line-soft);border-radius:8px;padding:14px 12px 28px;height:130px;margin-top:6px}
+  .proj svg{width:100%;height:100%;overflow:visible}
+  .proj .axis-label{font-size:9px;fill:var(--ink-3);font-family:var(--mono)}
+
+  /* Movements list */
+  .mov{display:flex;flex-direction:column;gap:8px}
+  .mov-row{display:grid;grid-template-columns:18px 1fr auto auto;gap:8px;font-size:11.5px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line-soft)}
+  .mov-row:last-child{border-bottom:none}
+  .mov-row .ic{color:var(--ink-3)}
+  .mov-row.in .ic{color:var(--ok)}
+  .mov-row.out .ic{color:var(--crit)}
+  .mov-row.res .ic{color:var(--accent-2)}
+  .mov-row .desc{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mov-row .desc b{color:var(--ink);font-weight:500}
+  .mov-row .qty{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:11.5px}
+  .mov-row.in .qty{color:var(--ok)}
+  .mov-row.out .qty{color:var(--crit)}
+  .mov-row.res .qty{color:var(--accent-2)}
+  .mov-row .when{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+
+  /* CTA buttons */
+  .cta-stack{display:flex;flex-direction:column;gap:6px}
+  .cta{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--line-soft);background:var(--paper);border-radius:8px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.12s}
+  .cta:hover{border-color:var(--primary);background:var(--paper-2)}
+  .cta.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+  .cta.primary:hover{background:var(--primary-2)}
+  .cta.primary .ic{color:var(--accent)}
+  .cta .ic{color:var(--primary);flex-shrink:0}
+  .cta.primary .ic{color:var(--accent)}
+  .cta .body{flex:1;min-width:0}
+  .cta .body .t{font-size:12.5px;font-weight:600;color:inherit;line-height:1.2}
+  .cta .body .s{font-size:10.5px;color:var(--ink-3);margin-top:2px;line-height:1.3}
+  .cta.primary .body .s{color:rgba(255,255,254,0.7)}
+  .cta .arr{color:inherit;opacity:0.5;flex-shrink:0}
+
+  /* Reposicion suggestion */
+  .repos{background:linear-gradient(135deg, var(--accent-soft), #FFF5D0);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start}
+  .repos .ic{width:26px;height:26px;border-radius:6px;background:var(--accent);color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .repos .body{flex:1}
+  .repos .t{font-size:12px;font-weight:600;color:var(--ink);line-height:1.3}
+  .repos .s{font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.4}
+  .repos .v{font-family:var(--mono);font-weight:700;color:var(--ink)}
+
+  /* Empty hover state */
+  .rail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;color:var(--ink-3);font-size:12px;line-height:1.5}
+  .rail-empty .ic{margin-bottom:10px;opacity:0.4}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="wintech-shell.jsx"></script>
+
+<script type="text/babel">
+// ─────────── Data ───────────
+const ROWS = [
+  // CRITICOS
+  { sku: "WT-58-7012", nombre: "Marco Wintech 58 · Símil madera",      linea: "Wintech 58", color: "Símil madera",  unidad: "barra",  fisico: 8,    reservado: 12,  min: 30,  obj: 90,  enTransito: 240, etaPuerto: "10 mar", consumo: 22, estado: "crit",  trend: -18, costoFob: 28.40, ventaUsd: 42.10 },
+  { sku: "HRJ-CRM-2104", nombre: "Cremona Roto NT reforzada",          linea: "Roto NT",     color: null,            unidad: "juego",  fisico: 14,   reservado: 6,   min: 25,  obj: 80,  enTransito: 0,   etaPuerto: null,    consumo: 9,  estado: "crit",  trend: -8,  costoFob: 18.20, ventaUsd: 28.90 },
+  { sku: "WT-70-3204", nombre: "Junco Wintech 70 · Roble dorado",      linea: "Wintech 70", color: "Roble dorado",  unidad: "barra",  fisico: 22,   reservado: 18,  min: 40,  obj: 120, enTransito: 80,  etaPuerto: "10 mar", consumo: 14, estado: "crit",  trend: -5,  costoFob: 32.10, ventaUsd: 48.50 },
+  { sku: "ACC-JUN-101", nombre: "Junta EPDM marco 58",                  linea: "Accesorios", color: null,            unidad: "metro",  fisico: 180,  reservado: 240, min: 500, obj: 1200,enTransito: 0,   etaPuerto: null,    consumo: 95, estado: "crit",  trend: 4,   costoFob: 0.42,  ventaUsd: 0.85 },
+  { sku: "HRJ-BG-1108", nombre: "Bisagra carga pesada 110mm",           linea: "Roto NT",     color: null,            unidad: "unidad", fisico: 38,   reservado: 22,  min: 80,  obj: 200, enTransito: 50,  etaPuerto: "10 mar", consumo: 18, estado: "crit",  trend: -12, costoFob: 4.10,  ventaUsd: 7.20 },
+  // BAJOS
+  { sku: "WT-58-7001", nombre: "Marco Wintech 58 · Blanco",             linea: "Wintech 58", color: "Blanco",        unidad: "barra",  fisico: 92,   reservado: 38,  min: 60,  obj: 180, enTransito: 320, etaPuerto: "10 mar", consumo: 41, estado: "bajo",  trend: -3,  costoFob: 26.10, ventaUsd: 39.40 },
+  { sku: "HRJ-MN-2201", nombre: "Manilla Roto NT línea Atlas blanca",   linea: "Roto NT",     color: "Blanco",        unidad: "unidad", fisico: 145,  reservado: 80,  min: 100, obj: 280, enTransito: 0,   etaPuerto: null,    consumo: 35, estado: "bajo",  trend: 2,   costoFob: 9.80,  ventaUsd: 16.40 },
+  { sku: "WT-58-7008", nombre: "Hoja Wintech 58 · Antracita",           linea: "Wintech 58", color: "Antracita",     unidad: "barra",  fisico: 64,   reservado: 12,  min: 50,  obj: 140, enTransito: 180, etaPuerto: "10 mar", consumo: 18, estado: "bajo",  trend: -4,  costoFob: 28.80, ventaUsd: 43.10 },
+  { sku: "ACC-JUN-204", nombre: "Junta cepillo pile-pad",                linea: "Accesorios", color: null,            unidad: "metro",  fisico: 420,  reservado: 110, min: 300, obj: 800, enTransito: 0,   etaPuerto: null,    consumo: 85, estado: "bajo",  trend: -6,  costoFob: 0.31,  ventaUsd: 0.72 },
+  // OK
+  { sku: "WT-70-3201", nombre: "Marco Wintech 70 · Blanco",             linea: "Wintech 70", color: "Blanco",        unidad: "barra",  fisico: 248,  reservado: 60,  min: 100, obj: 220, enTransito: 0,   etaPuerto: null,    consumo: 32, estado: "ok",    trend: 5,   costoFob: 30.40, ventaUsd: 45.80 },
+  { sku: "HRJ-CRM-2101", nombre: "Cremona Roto NT estándar",            linea: "Roto NT",     color: null,            unidad: "juego",  fisico: 320,  reservado: 90,  min: 80,  obj: 250, enTransito: 0,   etaPuerto: null,    consumo: 28, estado: "ok",    trend: 8,   costoFob: 14.20, ventaUsd: 22.40 },
+  { sku: "WT-58-7002", nombre: "Hoja Wintech 58 · Blanco",              linea: "Wintech 58", color: "Blanco",        unidad: "barra",  fisico: 312,  reservado: 84,  min: 120, obj: 260, enTransito: 0,   etaPuerto: null,    consumo: 38, estado: "ok",    trend: 3,   costoFob: 27.40, ventaUsd: 41.20 },
+  { sku: "ACC-TOR-405", nombre: "Tornillo autoperforante 4.2 × 25",      linea: "Accesorios", color: null,            unidad: "unidad", fisico: 14200,reservado: 3800,min: 5000,obj: 12000,enTransito: 0,  etaPuerto: null,    consumo: 1450,estado: "ok",   trend: 1,   costoFob: 0.04,  ventaUsd: 0.09 },
+  // SOBRESTOCK
+  { sku: "WT-58-7019", nombre: "Marco Wintech 58 · Beige claro",        linea: "Wintech 58", color: "Beige claro",   unidad: "barra",  fisico: 410,  reservado: 12,  min: 40,  obj: 120, enTransito: 0,   etaPuerto: null,    consumo: 6,  estado: "over",  trend: -2,  costoFob: 26.80, ventaUsd: 39.80 },
+];
+
+const FAMILIA = (sku) => sku.startsWith("WT") ? "Perfil" : sku.startsWith("HRJ") ? "Herraje" : "Accesorio";
+
+// Group rows
+const groupedRows = (() => {
+  const order = ["crit", "bajo", "ok", "over"];
+  const labels = {
+    crit: ["Crítico — bajo del mínimo", 5],
+    bajo: ["Bajo — necesita reposición", 4],
+    ok:   ["OK — stock saludable", 4],
+    over: ["Sobrestock — excede objetivo", 1],
+  };
+  const out = [];
+  for (const k of order){
+    const items = ROWS.filter(r => r.estado === k);
+    if (items.length){
+      out.push({ divider: true, label: labels[k][0], count: items.length });
+      out.push(...items);
+    }
+  }
+  return out;
+})();
+
+// ─────────── App ───────────
+function App(){
+  const [active, setActive] = React.useState("Stock & Alertas");
+  const [filter, setFilter] = React.useState("crit"); // KPI active
+  const [sel, setSel] = React.useState(ROWS[0]); // critical first
+  const [view, setView] = React.useState("salud"); // salud | familia | linea
+
+  return (
+    <div className="app" data-screen-label="05 Stock y Alertas">
+      <Sidebar active={active} onNav={setActive} />
+      <div className="main">
+        <Topbar
+          crumbs={["Wintech AR", "Stock & Alertas"]}
+          actions={<>
+            <button className="tb-btn"><IcDown size={14} /> Exportar</button>
+            <button className="tb-btn"><IcPlus size={14} /> Movimiento</button>
+            <button className="tb-btn primary"><IcShip size={14} /> Armar import sugerida</button>
+          </>}
+        />
+
+        <div className="content">
+          {/* Page header */}
+          <div className="ph">
+            <div>
+              <h1>Stock & Alertas</h1>
+              <div className="lede">450 SKUs · <b>5 críticos</b> que cruzan el mínimo antes del próximo arribo · próxima importación llega en <b>14 días</b> (10 mar)</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--mono)" }}>
+              <IcClk size={12} /> sincronizado hace 2 min · depósito Córdoba
+            </div>
+          </div>
+
+          {/* KPIs */}
+          <div className="kpis">
+            <Kpi k="total" lab="Total SKUs" v="450" sub="14 familias" active={filter} onClick={() => setFilter("total")} />
+            <Kpi k="crit" lab="Críticos" v="5" sub="bajan del mínimo" active={filter} onClick={() => setFilter("crit")} />
+            <Kpi k="warn" lab="Bajos" v="12" sub="reponer pronto" active={filter} onClick={() => setFilter("warn")} />
+            <Kpi k="ok" lab="Saludables" v="408" sub="stock OK" active={filter} onClick={() => setFilter("ok")} />
+            <Kpi k="tr" lab="En tránsito" v="22" sub="ETA 10 mar · IMP-005" active={filter} onClick={() => setFilter("tr")} />
+          </div>
+
+          {/* Filter bar */}
+          <div className="filt">
+            <div className="search">
+              <span className="ic"><IcSrch size={14} /></span>
+              <input placeholder="Buscar por SKU, nombre, color, línea…" defaultValue="" />
+            </div>
+            <div className="seg">
+              <button className={view === "salud" ? "active" : ""} onClick={() => setView("salud")}>Salud</button>
+              <button className={view === "familia" ? "active" : ""} onClick={() => setView("familia")}>Familia</button>
+              <button className={view === "linea" ? "active" : ""} onClick={() => setView("linea")}>Línea</button>
+            </div>
+            <button className="chip applied">Familia: todas <IcX size={10} /></button>
+            <button className="chip applied">Proveedor: Adopen + Roto <IcX size={10} /></button>
+            <button className="chip">+ Filtro</button>
+          </div>
+
+          {/* Split */}
+          <div className="split">
+            {/* Stock table */}
+            <div className="tbl-wrap">
+              <div className="tbl-h">
+                <h3>Inventario · agrupado por salud</h3>
+                <span className="sub">14 de 450 mostrados</span>
+                <div className="grow"></div>
+                <span className="col-toggle"><IcGear size={12} /> Columnas</span>
+              </div>
+
+              <div className="tbl-scroll">
+              <table className="stock">
+                <thead>
+                  <tr>
+                    <th style={{ width: "30%" }}>Producto</th>
+                    <th>Estado</th>
+                    <th className="num">Físico</th>
+                    <th className="num">Reservado</th>
+                    <th className="num">Disponible <span className="arr">↓</span></th>
+                    <th>Salud</th>
+                    <th>En tránsito</th>
+                    <th className="num">Consumo/sem</th>
+                    <th style={{ width: 60 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupedRows.map((row, i) => row.divider ? (
+                    <tr key={"d-" + i} className="divider">
+                      <td colSpan={9}>{row.label}<span className="ct">{row.count}</span></td>
+                    </tr>
+                  ) : (
+                    <Row key={row.sku} row={row} selected={sel.sku === row.sku} onClick={() => setSel(row)} />
+                  ))}
+                </tbody>
+              </table>
+              </div>
+            </div>
+
+            {/* Drill-down rail */}
+            <div className="rail">
+              <DrillDown row={sel} />
+            </div>
+          </div>
+
+          <div className="app-foot">
+            <span>Stock & Alertas</span>
+            <span>·</span>
+            <span>14 de 450 SKUs visibles · click para drill-down</span>
+            <div className="grow"></div>
+            <span>Última sincronización · hace 2 minutos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────── Components ───────────
+function Kpi({ k, lab, v, sub, active, onClick }){
+  const isActive = active === k;
+  return (
+    <div className={`kpi ${k} ${isActive ? "active" : ""}`} onClick={onClick}>
+      <div className="lab"><span className="dot"></span>{lab}</div>
+      <div className="v">{v}</div>
+      <div className="sub">{sub}</div>
+    </div>
+  );
+}
+
+function Row({ row, selected, onClick }){
+  const disp = row.fisico - row.reservado;
+  const pctMin = Math.min(100, (disp / row.min) * 100);
+  const pctObj = Math.min(100, (row.fisico / row.obj) * 100);
+  const pctRes = Math.min(100, (row.reservado / row.obj) * 100);
+  return (
+    <tr className={selected ? "selected" : ""} onClick={onClick}>
+      <td>
+        <div className="name">{row.nombre}</div>
+        <div className="meta"><span className="sku">{row.sku}</span> · {row.linea} {row.color ? "· " + row.color : ""}</div>
+      </td>
+      <td><span className={`estado ${row.estado}`}><span className="d"></span>{({ crit: "Crítico", bajo: "Bajo", ok: "OK", over: "Sobrestock" })[row.estado]}</span></td>
+      <td className="num">{row.fisico.toLocaleString("es-AR")}<span style={{ color: "var(--ink-3)", marginLeft: 3, fontSize: 10 }}>{row.unidad === "unidad" ? "u" : row.unidad === "metro" ? "m" : row.unidad === "barra" ? "br" : "jg"}</span></td>
+      <td className="num muted">{row.reservado.toLocaleString("es-AR")}</td>
+      <td className="num" style={{ fontWeight: 600, color: row.estado === "crit" ? "var(--crit)" : row.estado === "bajo" ? "var(--warn)" : "var(--ink)" }}>{disp.toLocaleString("es-AR")}</td>
+      <td>
+        <div className="gauge" title={`Físico ${row.fisico} · reservado ${row.reservado} · objetivo ${row.obj}`}>
+          <div className="bar">
+            <div className="fis" style={{ width: pctObj + "%" }}></div>
+            <div className="res" style={{ width: pctRes + "%" }}></div>
+            <div className="min" style={{ left: Math.min(98, (row.min / row.obj) * 100) + "%" }}></div>
+          </div>
+          <span className="v">{Math.round((row.fisico / row.obj) * 100)}%</span>
+        </div>
+      </td>
+      <td>
+        {row.enTransito > 0 ? (
+          <span className="transit"><IcShip size={10} />+{row.enTransito} · {row.etaPuerto}</span>
+        ) : (
+          <span className="transit dim">—</span>
+        )}
+      </td>
+      <td className="num">
+        <div className={`trend ${row.trend > 0 ? "up" : "dn"}`} style={{ justifyContent: "flex-end" }}>
+          <span style={{ color: "var(--ink)", fontWeight: 600 }}>{row.consumo}</span>
+          <span>·</span>
+          <span>{row.trend > 0 ? "+" : ""}{row.trend}%</span>
+        </div>
+      </td>
+      <td>
+        <div className="row-act">
+          <button title="Ver detalle"><IcSrch size={11} /></button>
+          <button title="Movimiento"><IcPlus size={11} /></button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function DrillDown({ row }){
+  if (!row) return (
+    <div className="rail-empty">
+      <div className="ic"><IcBox size={36} /></div>
+      Seleccioná un producto para ver disponibilidad futura, movimientos y reposición sugerida.
+    </div>
+  );
+  const disp = row.fisico - row.reservado;
+  const familia = FAMILIA(row.sku);
+  return (
+    <>
+      <div className="rail-h">
+        <div className="top">
+          <span className="sku">{row.sku}</span>
+          {row.estado === "crit" && <span className="crit-badge">Crítico</span>}
+          <div className="grow"></div>
+          <div className="nav">
+            <button title="Anterior"><IcArrL size={11} /></button>
+            <button title="Siguiente"><IcArrR size={11} /></button>
+            <button title="Abrir"><IcLnk size={11} /></button>
+          </div>
+        </div>
+        <h3>{row.nombre}</h3>
+        <div className="sub">{familia} · {row.linea}{row.color ? " · " + row.color : ""} · proveedor Adopen TR</div>
+      </div>
+
+      <div className="rail-body">
+        {/* Breakdown */}
+        <div className="rail-section">
+          <div className="lab">Disponibilidad ahora</div>
+          <div className="breakdown">
+            <div className="br-cell">
+              <div className="l">Físico</div>
+              <div className="n">{row.fisico}<span className="u">{row.unidad === "unidad" ? "u" : row.unidad === "metro" ? "m" : row.unidad === "barra" ? "br" : "jg"}</span></div>
+            </div>
+            <div className="br-cell">
+              <div className="l">Reservado</div>
+              <div className="n" style={{ color: "var(--accent-2)" }}>−{row.reservado}</div>
+            </div>
+            <div className="br-cell disp">
+              <div className="l">Disponible</div>
+              <div className="n">{disp}</div>
+            </div>
+          </div>
+          {row.enTransito > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "var(--teal-soft)", borderRadius: 7, fontSize: 11.5, color: "var(--ink-2)" }}>
+              <IcShip size={14} style={{ color: "var(--teal)" }} />
+              <span><b style={{ color: "var(--ink)" }}>+{row.enTransito} {row.unidad === "unidad" ? "u" : row.unidad === "metro" ? "m" : row.unidad === "barra" ? "barras" : "jg"}</b> en tránsito · IMP-2026-005 · ETA <b style={{ color: "var(--ink)" }}>{row.etaPuerto}</b></span>
+            </div>
+          )}
+        </div>
+
+        {/* Projection */}
+        <div className="rail-section">
+          <div className="lab" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            Disponibilidad proyectada · próximos 90 días
+            <div style={{ display: "flex", gap: 12, marginLeft: "auto", fontSize: 9.5, fontFamily: "var(--mono)", color: "var(--ink-3)", textTransform: "none", letterSpacing: 0 }}>
+              <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: "var(--primary)", marginRight: 4 }}></span>actual</span>
+              <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 2, background: "var(--teal)", marginRight: 4 }}></span>+import</span>
+            </div>
+          </div>
+          <ProjectionChart row={row} />
+        </div>
+
+        {/* Reposición sugerida */}
+        {(row.estado === "crit" || row.estado === "bajo") && (
+          <div className="rail-section">
+            <div className="lab">Reposición sugerida</div>
+            <div className="repos">
+              <div className="ic"><IcMagic size={14} /></div>
+              <div className="body">
+                <div className="t">Pedir <span className="v">{Math.max(row.obj - row.fisico - row.enTransito, 0)} {row.unidad === "unidad" ? "u" : row.unidad === "metro" ? "m" : row.unidad === "barra" ? "barras" : "jg"}</span> en próxima importación</div>
+                <div className="s">Cubre 90 días al ritmo actual + 20% buffer · FOB ~USD <span className="v">{((row.obj - row.fisico - row.enTransito) * row.costoFob).toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Movements */}
+        <div className="rail-section">
+          <div className="lab" style={{ display: "flex", alignItems: "center" }}>
+            Últimos movimientos
+            <span style={{ marginLeft: "auto", fontSize: 10.5, color: "var(--ink-3)", textTransform: "none", letterSpacing: 0, fontWeight: 500, fontFamily: "var(--mono)" }}>ver todos →</span>
+          </div>
+          <div className="mov">
+            <Mov dir="res" desc={<>Reservado en <b>PED-2026-018</b> · Aberturas del Centro</>} qty="−6" when="ayer" />
+            <Mov dir="out" desc={<>Egreso por <b>PED-2026-014</b> · Carpinterías Sur</>} qty="−4" when="hace 3d" />
+            <Mov dir="in" desc={<>Ingreso por <b>IMP-2025-018</b> · descarga Córdoba</>} qty="+120" when="hace 18d" />
+            <Mov dir="out" desc={<>Egreso por <b>PED-2026-008</b></>} qty="−12" when="hace 22d" />
+            <Mov dir="out" desc={<>Egreso por <b>PED-2026-003</b></>} qty="−8" when="hace 28d" />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="rail-section">
+          <div className="lab">Acciones</div>
+          <div className="cta-stack">
+            <button className="cta primary">
+              <span className="ic"><IcShip size={15} /></span>
+              <div className="body">
+                <div className="t">Agregar a próxima importación</div>
+                <div className="s">IMP-2026-006 (borrador) · armado preliminar</div>
+              </div>
+              <span className="arr"><IcArrR size={12} /></span>
+            </button>
+            <button className="cta">
+              <span className="ic"><IcPlus size={14} /></span>
+              <div className="body">
+                <div className="t">Cargar movimiento</div>
+                <div className="s">Ingreso, egreso o ajuste de inventario</div>
+              </div>
+              <span className="arr"><IcArrR size={12} /></span>
+            </button>
+            <button className="cta">
+              <span className="ic"><IcChart size={14} /></span>
+              <div className="body">
+                <div className="t">Ver histórico completo</div>
+                <div className="s">12 meses · evolución y rotación</div>
+              </div>
+              <span className="arr"><IcArrR size={12} /></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Mov({ dir, desc, qty, when }){
+  const ic = dir === "in" ? <IcDown size={11} /> : dir === "res" ? <IcCart size={11} /> : <IcUp size={11} />;
+  return (
+    <div className={`mov-row ${dir}`}>
+      <span className="ic">{ic}</span>
+      <span className="desc">{desc}</span>
+      <span className="qty">{qty}</span>
+      <span className="when">{when}</span>
+    </div>
+  );
+}
+
+function ProjectionChart({ row }){
+  // Build a 90-day projection: weekly steps. Stock decreases by consumo, jumps up at ETA if enTransito
+  const W = 360, H = 100, padL = 30, padR = 8, padT = 10, padB = 22;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const days = 90;
+  const consumoDay = row.consumo / 7;
+  const etaDay = row.enTransito > 0 ? 14 : 999;
+
+  // Generate points
+  const pts = [];
+  let stock = row.fisico - row.reservado;
+  for (let d = 0; d <= days; d += 3){
+    if (d === etaDay) stock += row.enTransito;
+    pts.push({ d, s: Math.max(0, stock) });
+    stock -= consumoDay * 3;
+  }
+  const maxS = Math.max(row.fisico + row.enTransito, row.obj * 1.1);
+  const minS = 0;
+  const x = (d) => padL + (d / days) * innerW;
+  const y = (s) => padT + innerH - ((s - minS) / (maxS - minS)) * innerH;
+
+  const path = pts.map((p, i) => (i === 0 ? "M" : "L") + " " + x(p.d).toFixed(1) + " " + y(p.s).toFixed(1)).join(" ");
+  const areaPath = path + ` L ${x(days).toFixed(1)} ${(padT + innerH).toFixed(1)} L ${x(0).toFixed(1)} ${(padT + innerH).toFixed(1)} Z`;
+
+  // Min line
+  const yMin = y(row.min);
+  // Critical threshold cross
+  let crossDay = null;
+  for (let i = 1; i < pts.length; i++){
+    if (pts[i - 1].s >= row.min && pts[i].s < row.min){
+      crossDay = pts[i].d;
+      break;
+    }
+  }
+
+  return (
+    <div className="proj">
+      <svg viewBox={`0 0 ${W} ${H}`}>
+        {/* Grid lines */}
+        {[0, 30, 60, 90].map(d => (
+          <line key={d} x1={x(d)} y1={padT} x2={x(d)} y2={padT + innerH} stroke="var(--line-soft)" strokeDasharray="2 3" />
+        ))}
+        {/* Min stock line */}
+        <line x1={padL} y1={yMin} x2={padL + innerW} y2={yMin} stroke="var(--crit)" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+        <text x={padL + 4} y={yMin - 3} className="axis-label" fill="var(--crit)" fontSize="8.5" fontFamily="var(--mono)">mín {row.min}</text>
+
+        {/* Area */}
+        <path d={areaPath} fill="var(--primary)" opacity="0.12" />
+        {/* Line */}
+        <path d={path} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinejoin="round" />
+
+        {/* ETA marker */}
+        {row.enTransito > 0 && (
+          <>
+            <line x1={x(etaDay)} y1={padT} x2={x(etaDay)} y2={padT + innerH} stroke="var(--teal)" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.7" />
+            <circle cx={x(etaDay)} cy={y(pts.find(p => p.d === etaDay)?.s || 0)} r="4" fill="var(--teal)" stroke="var(--paper)" strokeWidth="2" />
+            <text x={x(etaDay) - 14} y={padT + 9} className="axis-label" fill="var(--teal)" fontSize="9" fontFamily="var(--mono)" fontWeight="600">+{row.enTransito} ETA</text>
+          </>
+        )}
+
+        {/* Critical cross */}
+        {crossDay !== null && (
+          <>
+            <circle cx={x(crossDay)} cy={yMin} r="3.5" fill="var(--crit)" stroke="var(--paper)" strokeWidth="1.5" />
+            <text x={x(crossDay) + 6} y={yMin + 12} className="axis-label" fill="var(--crit)" fontSize="9" fontFamily="var(--mono)" fontWeight="600">cruza min · día {crossDay}</text>
+          </>
+        )}
+
+        {/* Today marker */}
+        <circle cx={x(0)} cy={y(row.fisico - row.reservado)} r="3.5" fill="var(--primary)" stroke="var(--paper)" strokeWidth="1.5" />
+
+        {/* X axis labels */}
+        <text x={x(0)} y={H - 6} className="axis-label" textAnchor="middle">hoy</text>
+        <text x={x(30)} y={H - 6} className="axis-label" textAnchor="middle">+30d</text>
+        <text x={x(60)} y={H - 6} className="axis-label" textAnchor="middle">+60d</text>
+        <text x={x(90)} y={H - 6} className="axis-label" textAnchor="middle">+90d</text>
+      </svg>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

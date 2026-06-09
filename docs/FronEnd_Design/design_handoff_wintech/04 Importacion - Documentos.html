@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · IMP-2026-005 · Documentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="wintech-shell.css" />
+<style>
+  /* Mini hero (just enough context) */
+  .mini-hero{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;padding:14px 18px;display:flex;gap:14px;align-items:center;margin-bottom:14px}
+  .mini-hero .glyph{width:42px;height:42px;border-radius:10px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center}
+  .mini-hero h1{margin:0;font-size:18px;font-family:var(--mono);font-weight:600;color:var(--ink)}
+  .mini-hero .meta{font-size:12px;color:var(--ink-3);margin-top:2px}
+  .mini-hero .tag{font-size:10.5px;background:var(--accent);color:var(--ink);padding:2px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;margin-left:8px}
+  .mini-hero .grow{flex:1}
+  .mini-hero .quick{font-size:11.5px;color:var(--ink-2);font-family:var(--mono);text-align:right}
+  .mini-hero .quick b{color:var(--ink);font-weight:600}
+
+  /* Sub-tabs */
+  .stabs{display:flex;gap:6px;margin-bottom:18px;padding:4px;background:var(--paper);border:1px solid var(--line-soft);border-radius:9px;width:fit-content}
+  .stab{padding:7px 14px;font-size:12.5px;font-weight:500;color:var(--ink-2);cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:7px}
+  .stab.active{background:var(--primary);color:var(--lily);font-weight:600}
+  .stab .ct{font-family:var(--mono);font-size:10.5px;background:rgba(255,255,254,0.18);padding:1px 5px;border-radius:3px;font-weight:600}
+  .stab:not(.active) .ct{background:var(--paper-2);color:var(--ink-3)}
+
+  /* Layout */
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
+
+  /* Left: timeline conversation */
+  .conv{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .conv-h{padding:13px 18px;background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
+  .conv-h h3{margin:0;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .conv-h .sub{font-size:11.5px;color:var(--ink-3)}
+  .conv-h .grow{flex:1}
+  .conv-h .lk{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:6px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+  .conv-h .lk.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+
+  /* Stage divider */
+  .stage-div{padding:14px 20px 6px;display:flex;align-items:center;gap:10px;background:var(--paper-2);border-bottom:1px solid var(--line-soft);border-top:1px solid var(--line-soft)}
+  .stage-div:first-of-type{border-top:none}
+  .stage-div .num{width:24px;height:24px;border-radius:6px;background:var(--primary);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .stage-div .num.done{background:var(--ok)}
+  .stage-div .num.active{background:var(--accent);color:var(--ink)}
+  .stage-div .num.up{background:var(--paper);color:var(--ink-3);border:1px dashed var(--line-2)}
+  .stage-div h4{margin:0;font-size:12px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:0.04em}
+  .stage-div .when{font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+  .stage-div .grow{flex:1}
+  .stage-div .ct{font-size:10.5px;color:var(--ink-3);font-family:var(--mono);background:var(--paper);padding:2px 7px;border-radius:4px;border:1px solid var(--line-soft)}
+
+  /* Mail message */
+  .msg{padding:14px 20px;border-bottom:1px solid var(--line-soft);display:grid;grid-template-columns:32px 1fr;gap:12px}
+  .msg:last-child{border-bottom:none}
+  .msg .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:var(--mono)}
+  .msg.out .av{background:linear-gradient(135deg, var(--accent-2), var(--primary))}
+  .msg.in .av{background:linear-gradient(135deg, var(--teal), var(--primary))}
+  .msg .body{min-width:0}
+  .msg .head{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+  .msg .head .who{font-size:13px;font-weight:600;color:var(--ink)}
+  .msg .head .arrow{font-size:11px;color:var(--ink-3)}
+  .msg .head .other{font-size:12px;color:var(--ink-2)}
+  .msg .head .when{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-left:auto}
+  .msg .head .dir{font-size:9.5px;padding:1px 6px;border-radius:3px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;font-family:var(--mono)}
+  .msg.out .dir{background:var(--accent-soft);color:#7a5e10}
+  .msg.in .dir{background:var(--teal-soft);color:var(--primary)}
+  .msg .subj{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.35}
+  .msg .preview{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+  .msg .atts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .att-chip{display:flex;align-items:center;gap:9px;padding:7px 10px;background:var(--paper-2);border:1px solid var(--line-soft);border-radius:7px;font-size:12px;cursor:pointer;transition:all 0.12s}
+  .att-chip:hover{background:var(--paper);border-color:var(--primary)}
+  .att-chip .ic-f{width:26px;height:26px;border-radius:5px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+  .att-chip .ic-f.pdf{background:var(--crit)}
+  .att-chip .ic-f.xls{background:#1F7A3D}
+  .att-chip .ic-f.doc{background:#2E5BBA}
+  .att-chip .ic-f.img{background:var(--warn)}
+  .att-chip .nm{font-weight:500;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .att-chip .meta{font-size:10.5px;color:var(--ink-3);font-family:var(--mono)}
+  .att-chip .v{font-size:10px;background:var(--accent);color:var(--ink);padding:1px 6px;border-radius:3px;font-family:var(--mono);font-weight:700;letter-spacing:0.02em}
+  .att-chip.superseded{opacity:0.55}
+  .att-chip.superseded .nm{text-decoration:line-through;color:var(--ink-3)}
+
+  /* Right: documents library */
+  .lib{position:sticky;top:78px;background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03);max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+  .lib-h{padding:13px 18px;background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
+  .lib-h h3{margin:0;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .lib-h .sub{font-size:11.5px;color:var(--ink-3)}
+  .lib-h .grow{flex:1}
+  .lib-h .filt{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line-soft);border-radius:7px;padding:3px}
+  .lib-h .filt button{border:none;background:transparent;font-size:11px;color:var(--ink-2);padding:4px 9px;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500}
+  .lib-h .filt button.active{background:var(--primary);color:var(--lily)}
+
+  .lib-search{padding:10px 18px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px;background:var(--paper-2)}
+  .lib-search input{flex:1;border:1px solid var(--line-soft);background:var(--paper);padding:6px 10px;border-radius:6px;font-family:inherit;font-size:12.5px;color:var(--ink);outline:none}
+  .lib-search input::placeholder{color:var(--ink-3)}
+  .lib-search input:focus{border-color:var(--primary)}
+
+  .lib-body{overflow-y:auto;flex:1}
+  .lib-stage{padding:9px 18px 6px;font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;background:var(--paper-2);border-bottom:1px solid var(--line-soft);position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px}
+  .lib-stage .grow{flex:1}
+  .lib-stage .ct{font-family:var(--mono);font-size:10px;color:var(--ink-3);font-weight:600;letter-spacing:0}
+
+  .lib-row{padding:11px 18px;display:grid;grid-template-columns:30px 1fr auto;gap:10px;border-bottom:1px solid var(--line-soft);align-items:center;cursor:pointer;font-size:12.5px}
+  .lib-row:hover{background:var(--paper-2)}
+  .lib-row .ic-f{width:28px;height:28px;border-radius:6px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+  .lib-row .ic-f.pdf{background:var(--crit)}
+  .lib-row .ic-f.xls{background:#1F7A3D}
+  .lib-row .ic-f.doc{background:#2E5BBA}
+  .lib-row .body{min-width:0}
+  .lib-row .nm{font-weight:500;color:var(--ink);font-size:12.5px;display:flex;align-items:center;gap:6px}
+  .lib-row .nm .v{font-size:9.5px;background:var(--paper-2);color:var(--ink-2);padding:1px 5px;border-radius:3px;font-family:var(--mono);font-weight:700;border:1px solid var(--line-soft);letter-spacing:0.02em}
+  .lib-row .nm .v.active{background:var(--accent);color:var(--ink);border-color:var(--accent-2)}
+  .lib-row .meta{font-size:10.5px;color:var(--ink-3);font-family:var(--mono);margin-top:2px;display:flex;gap:6px;align-items:center}
+  .lib-row .dir{font-size:9px;font-family:var(--mono);font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+  .lib-row .dir.out{color:#7a5e10}
+  .lib-row .dir.in{color:var(--primary)}
+  .lib-row .actions{display:flex;gap:4px;opacity:0;transition:opacity 0.12s}
+  .lib-row:hover .actions{opacity:1}
+  .lib-row .actions button{width:24px;height:24px;border:1px solid var(--line-soft);background:var(--paper);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-family:inherit}
+  .lib-row .actions button:hover{border-color:var(--primary);color:var(--primary)}
+
+  /* Versions stack indicator */
+  .ver-stack{position:relative;font-size:9px;font-family:var(--mono);color:var(--ink-3);background:var(--paper-2);padding:1px 5px;border-radius:3px;border:1px solid var(--line-soft);font-weight:600}
+  .ver-stack:hover{background:var(--accent-soft);color:var(--ink);border-color:var(--accent)}
+
+  /* Compose draft */
+  .compose{background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:14px 18px;margin-top:14px;display:flex;gap:12px;align-items:flex-start}
+  .compose .ic{width:32px;height:32px;border-radius:8px;background:var(--accent);color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .compose .body{flex:1}
+  .compose .body .t{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+  .compose .body .s{font-size:12px;color:var(--ink-2);line-height:1.5}
+  .compose .body .actions{display:flex;gap:8px;margin-top:10px}
+  .compose .btn-mini{padding:6px 11px;border-radius:6px;font-size:12px;font-weight:500;border:1px solid var(--line-soft);background:var(--paper);color:var(--ink);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+  .compose .btn-mini.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="wintech-shell.jsx"></script>
+
+<script type="text/babel">
+const STAGES = [
+  { id: "armado", label: "Armado del pedido", num: 1, state: "done", date: "12 nov → 28 nov 25", count: 3 },
+  { id: "cotizacion", label: "Cotización y negociación", num: 2, state: "done", date: "28 nov → 06 dic 25", count: 4 },
+  { id: "confirmacion", label: "Confirmación y PO", num: 3, state: "done", date: "08 dic 25", count: 2 },
+  { id: "produccion", label: "Producción", num: 4, state: "done", date: "08 dic → 18 dic 25", count: 1 },
+  { id: "embarque", label: "Embarque y documentación", num: 5, state: "done", date: "22 dic 25", count: 4 },
+  { id: "transito", label: "Tránsito marítimo", num: 6, state: "active", date: "ahora", count: 1 },
+  { id: "aduana", label: "Aduana y desembarque", num: 7, state: "upcoming", date: "10 mar → 19 mar 26", count: 0 },
+];
+
+function App(){
+  const [active, setActive] = React.useState("Importaciones");
+  const [tab, setTab] = React.useState("Documentos");
+  const [filt, setFilt] = React.useState("Todos");
+
+  return (
+    <div className="app" data-screen-label="04 Documentos Importacion">
+      <Sidebar active={active} onNav={setActive} />
+      <div className="main">
+        <Topbar
+          crumbs={["Wintech AR", "Importaciones", "IMP-2026-005", "Documentos"]}
+          actions={<>
+            <button className="tb-btn"><IcUp size={14} /> Subir archivo</button>
+            <button className="tb-btn primary"><IcDoc size={14} /> Componer email</button>
+          </>}
+        />
+
+        <div className="content">
+          {/* Mini hero */}
+          <div className="mini-hero">
+            <div className="glyph"><IcShip size={22} /></div>
+            <div>
+              <h1>IMP-2026-005<span className="tag">En tránsito</span></h1>
+              <div className="meta">Adopen · Estambul → Buenos Aires · ETA 10 mar · 22 ítems</div>
+            </div>
+            <div className="grow"></div>
+            <div className="quick">
+              <div><b>15</b> archivos · <b>11</b> emails</div>
+              <div style={{ marginTop: 3 }}>Última actividad <b>hace 4h</b></div>
+            </div>
+          </div>
+
+          {/* Sub-tabs (sub-navigation within Detalle) */}
+          <div className="stabs">
+            {[
+              ["Resumen", null],
+              ["Items", 22],
+              ["Costos", null],
+              ["Pagos", "1/3"],
+              ["Documentos", 15],
+              ["Conversación", 11],
+              ["Timeline", null],
+            ].map(([t, ct]) => (
+              <div key={t} className={`stab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
+                {t}{ct != null && <span className="ct">{ct}</span>}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid">
+            {/* Left: conversation timeline */}
+            <div className="conv">
+              <div className="conv-h">
+                <h3>Conversación con Adopen</h3>
+                <span className="sub">11 emails · agrupados por etapa</span>
+                <div className="grow"></div>
+                <button className="lk"><IcLnk size={11} /> Forward a imports@wintech.app</button>
+              </div>
+
+              {/* Etapa 1: Armado */}
+              <div className="stage-div">
+                <div className="num done"><IcCheck size={12} /></div>
+                <h4>1 · Armado del pedido</h4>
+                <span className="when">12 nov → 28 nov 25</span>
+                <div className="grow"></div>
+                <span className="ct">3 mensajes</span>
+              </div>
+
+              <div className="msg out">
+                <div className="av">LP</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Lucas P.</span>
+                    <span className="arrow">→</span>
+                    <span className="other">ventas@adopen.com.tr, mehmet@adopen.com.tr</span>
+                    <span className="dir">Enviado</span>
+                    <span className="when">12 nov 25 · 11:42</span>
+                  </div>
+                  <div className="subj">RFQ — Pedido próximo contenedor 40' HC · Wintech AR</div>
+                  <div className="preview">Hola Mehmet, te paso adjunto el listado del próximo pedido para el contenedor que necesitamos despachar antes de fin de año. Son 22 SKUs, principalmente perfiles WT-58 / WT-70 y herrajes Roto NT. Confirmanos disponibilidad de stock y precios actualizados…</div>
+                  <div className="atts">
+                    <Att type="xls" name="Pedido_IMP-2026-005_v1.xlsx" meta="48 KB · 22 ítems" v="v1" superseded />
+                  </div>
+                </div>
+              </div>
+
+              <div className="msg in">
+                <div className="av">AD</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Mehmet Yılmaz · Adopen</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Lucas P.</span>
+                    <span className="dir">Recibido</span>
+                    <span className="when">19 nov 25 · 09:18</span>
+                  </div>
+                  <div className="subj">Re: RFQ — Cotización Wintech AR Q1/2026</div>
+                  <div className="preview">Hi Lucas, please find attached our quotation for your requested items. Note: WT-58-7012 will have a 4-week lead time due to color batch scheduling. Cremona Roto NT estándar quantity available, reforzada is on backorder…</div>
+                  <div className="atts">
+                    <Att type="pdf" name="Cotizacion_Wintech_2026Q1_v1.pdf" meta="312 KB · 22 ítems · USD 138.450 FOB" v="v1" superseded />
+                    <Att type="pdf" name="Adopen_PriceList_2026Q1.pdf" meta="1.4 MB · catálogo completo" v="ref" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="msg out">
+                <div className="av">LP</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Lucas P.</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Mehmet · Adopen</span>
+                    <span className="dir">Enviado</span>
+                    <span className="when">28 nov 25 · 16:30</span>
+                  </div>
+                  <div className="subj">Re: RFQ — Pedido revisado v2</div>
+                  <div className="preview">Mehmet, ajusté cantidades: subimos 30 unidades de junco WT-70-3204, sacamos las cremonas reforzadas (vamos solo con estándar 150u) y agregamos 50 bisagras carga pesada HRJ-BG-1108. Total ahora ~14.700 kg. Adjunto la versión 2.</div>
+                  <div className="atts">
+                    <Att type="xls" name="Pedido_IMP-2026-005_v2.xlsx" meta="51 KB · 22 ítems · 14.700 kg" v="v2" superseded />
+                  </div>
+                </div>
+              </div>
+
+              {/* Etapa 2: Cotización */}
+              <div className="stage-div">
+                <div className="num done"><IcCheck size={12} /></div>
+                <h4>2 · Cotización y negociación</h4>
+                <span className="when">28 nov → 06 dic 25</span>
+                <div className="grow"></div>
+                <span className="ct">4 mensajes</span>
+              </div>
+
+              <div className="msg in">
+                <div className="av">AD</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Mehmet · Adopen</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Lucas P.</span>
+                    <span className="dir">Recibido</span>
+                    <span className="when">02 dic 25 · 10:04</span>
+                  </div>
+                  <div className="subj">Re: Cotización actualizada v2 — FOB USD 142.800</div>
+                  <div className="preview">Lucas, here is the updated quotation reflecting your v2 list. Total FOB Istanbul USD 142.800. Payment terms as usual: 30/40/30. We can confirm shipping on container 22 dec if PO and 30% are received before 08 dec.</div>
+                  <div className="atts">
+                    <Att type="pdf" name="Cotizacion_Wintech_2026Q1_v2.pdf" meta="318 KB · 22 ítems · USD 142.800 FOB" v="v2" />
+                    <Att type="pdf" name="Comparativa_v1_vs_v2.pdf" meta="184 KB · diferencias precio/cantidad" v="ref" auto />
+                  </div>
+                </div>
+              </div>
+
+              <div className="msg out">
+                <div className="av">LP</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Lucas P.</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Mehmet · Adopen</span>
+                    <span className="dir">Enviado</span>
+                    <span className="when">06 dic 25 · 14:22</span>
+                  </div>
+                  <div className="subj">Aprobado v2 — solicito proforma</div>
+                  <div className="preview">Mehmet, OK con la cotización v2. Por favor mandanos la proforma para procesar la transferencia del 30% esta semana. Confirmo entrega FOB Istanbul, container 40' HC, embarque 22 dic.</div>
+                </div>
+              </div>
+
+              {/* Etapa 3: Confirmación */}
+              <div className="stage-div">
+                <div className="num done"><IcCheck size={12} /></div>
+                <h4>3 · Confirmación y orden de compra</h4>
+                <span className="when">08 dic 25</span>
+                <div className="grow"></div>
+                <span className="ct">2 mensajes</span>
+              </div>
+
+              <div className="msg in">
+                <div className="av">AD</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Mehmet · Adopen</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Lucas P.</span>
+                    <span className="dir">Recibido</span>
+                    <span className="when">08 dic 25 · 08:50</span>
+                  </div>
+                  <div className="subj">Proforma Invoice PI-2025-0892 — IMP Wintech</div>
+                  <div className="preview">Lucas, please find the proforma invoice attached. Once we receive the 30% deposit and signed PO we will start production. Banking details on page 2.</div>
+                  <div className="atts">
+                    <Att type="pdf" name="Proforma_PI-2025-0892.pdf" meta="248 KB · USD 142.800" v="v1" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="msg out">
+                <div className="av">LP</div>
+                <div className="body">
+                  <div className="head">
+                    <span className="who">Lucas P.</span>
+                    <span className="arrow">→</span>
+                    <span className="other">Mehmet · Adopen</span>
+                    <span className="dir">Enviado</span>
+                    <span className="when">08 dic 25 · 17:35</span>
+                  </div>
+                  <div className="subj">PO firmada + comprobante transferencia 30%</div>
+                  <div className="preview">Mehmet, te adjunto la PO firmada y comprobante de transferencia por USD 42.840 (30%). Quedamos a la espera de la confirmación de producción.</div>
+                  <div className="atts">
+                    <Att type="pdf" name="PO_Wintech_IMP-2026-005_signed.pdf" meta="412 KB · firmada" v="v1" />
+                    <Att type="pdf" name="Wire_transfer_30pct.pdf" meta="156 KB · USD 42.840" v="v1" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Etapa 5 collapsed for brevity */}
+              <div className="stage-div">
+                <div className="num done"><IcCheck size={12} /></div>
+                <h4>5 · Embarque y documentación</h4>
+                <span className="when">22 dic 25</span>
+                <div className="grow"></div>
+                <span className="ct">4 mensajes · colapsados</span>
+              </div>
+
+              <div style={{ padding: "10px 20px", fontSize: 12, color: "var(--ink-3)", textAlign: "center", borderBottom: "1px solid var(--line-soft)", background: "var(--paper-2)", cursor: "pointer" }}>
+                ↓ Mostrar 4 mensajes de embarque (factura comercial, packing list, BL, certificado origen)
+              </div>
+
+              {/* Compose draft */}
+              <div style={{ padding: "16px 20px" }}>
+                <div className="compose">
+                  <div className="ic"><IcDoc size={18} /></div>
+                  <div className="body">
+                    <div className="t">Próximo paso sugerido — confirmar arribo a puerto</div>
+                    <div className="s">Cuando el barco llegue a Buenos Aires (ETA 10 mar) Adopen suele mandar la liquidación final. Tenés un borrador automático listo para responder pidiendo el desglose detallado de fletes y seguros.</div>
+                    <div className="actions">
+                      <button className="btn-mini"><IcDoc size={11} /> Ver borrador</button>
+                      <button className="btn-mini primary"><IcArrR size={11} /> Componer email</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: documents library */}
+            <div className="lib">
+              <div className="lib-h">
+                <h3>Biblioteca de documentos</h3>
+                <span className="sub">15 archivos · 6 con versiones</span>
+                <div className="grow"></div>
+              </div>
+              <div className="lib-search">
+                <div className="filt" style={{ display: "flex", gap: 4, background: "var(--paper)", border: "1px solid var(--line-soft)", borderRadius: 7, padding: 3 }}>
+                  {["Todos", "Enviados", "Recibidos", "v. activas"].map(f => (
+                    <button key={f} className={filt === f ? "active" : ""} onClick={() => setFilt(f)} style={{ border: "none", background: filt === f ? "var(--primary)" : "transparent", color: filt === f ? "var(--lily)" : "var(--ink-2)", fontSize: 11, padding: "4px 9px", borderRadius: 4, cursor: "pointer", fontFamily: "inherit", fontWeight: 500 }}>{f}</button>
+                  ))}
+                </div>
+                <input placeholder="Buscar archivo, tipo, versión…" />
+              </div>
+
+              <div className="lib-body">
+                <Stage label="Armado · 12 nov → 28 nov" ct={2} />
+                <LibRow type="xls" name="Pedido_IMP-2026-005" v="v2" active dir="out" meta="51 KB · 28 nov 25 · Lucas P." versions={2} />
+
+                <Stage label="Cotización · 19 nov → 02 dic" ct={3} />
+                <LibRow type="pdf" name="Cotizacion_Wintech_2026Q1" v="v2" active dir="in" meta="318 KB · 02 dic 25 · Adopen" versions={2} />
+                <LibRow type="pdf" name="Adopen_PriceList_2026Q1" v="ref" dir="in" meta="1.4 MB · 19 nov 25 · referencia" />
+                <LibRow type="pdf" name="Comparativa_v1_vs_v2" v="auto" dir="in" meta="184 KB · 02 dic 25 · generado" />
+
+                <Stage label="Confirmación · 08 dic" ct={3} />
+                <LibRow type="pdf" name="Proforma_PI-2025-0892" v="v1" active dir="in" meta="248 KB · 08 dic · Adopen" />
+                <LibRow type="pdf" name="PO_Wintech_IMP-2026-005_signed" v="v1" active dir="out" meta="412 KB · 08 dic · Lucas P." />
+                <LibRow type="pdf" name="Wire_transfer_30pct" v="v1" active dir="out" meta="156 KB · 08 dic · USD 42.840" />
+
+                <Stage label="Embarque · 22 dic" ct={4} />
+                <LibRow type="pdf" name="Factura_Comercial_INV-2025-1140" v="v1" active dir="in" meta="284 KB · 22 dic · Adopen" />
+                <LibRow type="pdf" name="Packing_List_IMP-2026-005" v="v1" active dir="in" meta="156 KB · 22 dic · 22 ítems" />
+                <LibRow type="pdf" name="BL_MSC_AR_2204" v="v1" active dir="in" meta="412 KB · 22 dic · Maersk" />
+                <LibRow type="pdf" name="Certificado_Origen_TR" v="v1" active dir="in" meta="88 KB · 22 dic · TR" />
+
+                <Stage label="Tránsito · ahora" ct={1} />
+                <LibRow type="pdf" name="Poliza_Seguro_Allianz" v="v1" active dir="in" meta="124 KB · 28 dic · Allianz" />
+
+                <Stage label="Aduana · pendiente" ct={2} pending />
+                <LibRow type="doc" name="Despacho_a_plaza" v="—" pending dir="—" meta="post-arribo" />
+                <LibRow type="doc" name="Liquidación_aduanera" v="—" pending dir="—" meta="post-despacho" />
+              </div>
+            </div>
+          </div>
+
+          <div className="app-foot">
+            <span>IMP-2026-005 · Documentos</span>
+            <span>·</span>
+            <span>Sincronizado con buzón <b style={{ color: "var(--ink)" }}>imports@wintech.app</b></span>
+            <div className="grow"></div>
+            <span>Última sincronización · hace 4 minutos · 11 emails / 15 archivos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Att({ type, name, meta, v, superseded, auto }){
+  return (
+    <div className={`att-chip ${superseded ? "superseded" : ""}`}>
+      <div className={`ic-f ${type}`}>{type.toUpperCase()}</div>
+      <div className="nm">{name}</div>
+      <div className="meta">{meta}</div>
+      {v && <span className="v" style={ auto ? { background: "var(--teal-soft)", color: "var(--primary)" } : superseded ? { background: "var(--paper-2)", color: "var(--ink-3)" } : null }>{v}</span>}
+    </div>
+  );
+}
+
+function Stage({ label, ct, pending }){
+  return (
+    <div className="lib-stage" style={ pending ? { background: "#FFF8E0" } : null }>
+      <span>{label}</span>
+      <div className="grow"></div>
+      <span className="ct">{ct} archivo{ct === 1 ? "" : "s"}</span>
+    </div>
+  );
+}
+
+function LibRow({ type, name, v, active, dir, meta, versions, pending }){
+  return (
+    <div className="lib-row" style={ pending ? { opacity: 0.55 } : null }>
+      <div className={`ic-f ${type}`}>{type.toUpperCase()}</div>
+      <div className="body">
+        <div className="nm">
+          {name}
+          {v && v !== "—" && <span className={`v ${active ? "active" : ""}`}>{v}</span>}
+          {versions && versions > 1 && <span className="ver-stack" title={`${versions} versiones · click para ver historial`}>+{versions - 1} prev.</span>}
+        </div>
+        <div className="meta">
+          {dir === "out" && <span className="dir out">↑ enviado</span>}
+          {dir === "in" && <span className="dir in">↓ recibido</span>}
+          {dir === "—" && <span style={{ color: "var(--warn)", fontWeight: 600 }}>pendiente</span>}
+          {dir !== "—" && <span>·</span>}
+          <span>{meta}</span>
+        </div>
+      </div>
+      <div className="actions">
+        <button title="Ver"><IcSrch size={11} /></button>
+        <button title="Descargar"><IcDown size={11} /></button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

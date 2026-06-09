@@ -3,6 +3,13 @@
 **Fuente de verdad del QUÉ.** Cada requerimiento tiene un ID estable (`FR-n`) que se cita desde
 el código y los commits. Si algo cambia, se actualiza acá primero.
 
+> **Pendiente de expansión (Fase 2+):** al adoptar el diseño "Jardín de San José" como norte
+> (`adr/0005`), el alcance crece con requerimientos aún no formalizados acá: importaciones con
+> timeline y costos logísticos, plan de pagos 30/40/30, carga de pedidos por PDF con IA, costo
+> desembarcado (landed cost), rentabilidad / punto de equilibrio y auditoría. Se irán agregando
+> como `FR-9`, `FR-10`, … a medida que cada fase los implemente. La fuente visual/funcional
+> mientras tanto es [`FronEnd_Design/`](FronEnd_Design/design_handoff_wintech/diseno.md).
+
 ## FR-1 — ABM de productos
 
 El usuario puede dar de **alta, baja (lógica) y modificación** de productos. Cada producto tiene:

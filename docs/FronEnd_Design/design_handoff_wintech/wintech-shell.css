@@ -1,0 +1,117 @@
+/* Wintech AR — Jardín de San José
+   Shared design tokens + shell (sidebar + topbar) styles
+   Used by Dashboard, Importaciones, Pedidos, Stock, Rentabilidad, etc. */
+
+:root{
+  /* Paleta Jardín de San José */
+  --bg:#F6F2E0;
+  --paper:#FFFFFE;
+  --paper-2:#EFE7CB;
+  --pastel:#F5C842;
+  --pastel-soft:#FCEFB4;
+  --ink:#29261B;
+  --ink-2:#5E5A33;
+  --ink-3:#9D8C45;
+  --line:#B5A560;
+  --line-2:#CFC178;
+  --line-soft:#E0D38E;
+  --primary:#1F3818;
+  --primary-2:#2E4D24;
+  --primary-soft:#DCE6CC;
+  --teal:#8AA63E;
+  --teal-soft:#E8F0CF;
+  --accent:#F5C842;
+  --accent-2:#F4A93A;
+  --accent-soft:#FCEFB4;
+  --lily:#FFFFFE;
+  --eq-from:#93B041;
+  --eq-to:#6E8530;
+  --ok:#5C8A1E;
+  --warn:#D89020;
+  --crit:#A03B1E;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+*{box-sizing:border-box}
+html,body,#root{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#C5D199;border-radius:6px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+
+button{font-family:inherit}
+svg.ic{stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ------- Identidad Jardín de San José: stripes + acentos ------- */
+h1.page, .h1-page{position:relative;padding-left:14px;font-size:24px;font-weight:600;letter-spacing:-0.02em;color:var(--ink);margin:0}
+h1.page::before, .h1-page::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--accent);border-radius:2px}
+.h2-section{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--primary);display:flex;align-items:center;gap:8px}
+.h2-section::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.panel{position:relative;background:var(--paper);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+.panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary);opacity:0.85}
+.panel-h{padding:14px 18px;border-bottom:2px solid var(--primary-soft);background:linear-gradient(180deg,var(--primary-soft) 0%,var(--paper) 100%)}
+.panel-h h3{margin:0;font-size:14px;font-weight:600;color:var(--primary)}
+.kpi{position:relative;background:var(--paper);border:1px solid var(--line-soft);border-radius:10px;padding:14px 16px;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:0.7}
+
+.app{display:flex;min-height:100vh}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.content{padding:24px 28px 56px;max-width:1480px;margin:0 auto;width:100%}
+
+/* ------- Sidebar ------- */
+.sb{width:248px;flex:0 0 248px;background:var(--paper);border-right:1px solid var(--line-soft);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;padding:16px 12px}
+.sb::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%)}
+.sb-head{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line-soft);margin-bottom:12px}
+.sb-logo{width:32px;height:32px;border-radius:8px;background:var(--primary);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;position:relative;overflow:hidden;flex:0 0 32px}
+.sb-logo svg{position:absolute;inset:0;width:100%;height:100%}
+.sb-brand{font-weight:600;font-size:13.5px;letter-spacing:-0.005em;line-height:1.1}
+.sb-brand small{display:block;color:var(--ink-3);font-weight:400;font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;margin-top:3px}
+.sb-search{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line-soft);border-radius:7px;color:var(--ink-3);margin-bottom:14px;background:var(--paper-2);cursor:pointer;font-size:12.5px}
+.sb-kbd{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--line-soft);padding:1px 5px;border-radius:4px;background:#fff}
+.sb-group{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);padding:12px 8px 6px;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;color:var(--ink);cursor:pointer;font-size:13px;font-weight:500}
+.sb-item:hover{background:var(--paper-2)}
+.sb-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600;box-shadow:inset 2px 0 0 var(--accent)}
+.sb-item .lbl{flex:1}
+.sb-item .badge{font-family:var(--mono);font-size:10px;background:var(--crit);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600}
+.sb-item .badge.amber{background:var(--warn)}
+.sb-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent-2),var(--primary));color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;border:1.5px solid var(--lily);flex:0 0 28px}
+
+/* ------- Topbar ------- */
+.tb{display:flex;align-items:center;height:56px;padding:0 28px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--bg) 0%, var(--paper-2) 100%);gap:14px}
+.tb-crumbs{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:12px;letter-spacing:0.02em;text-transform:uppercase;font-weight:500}
+.tb-search{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line-soft);border-radius:7px;color:var(--ink-3);background:#FFF;cursor:pointer;font-size:12.5px;min-width:240px}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:7px;border:1px solid var(--line-soft);background:var(--paper);color:var(--ink);font-size:13px;font-weight:500;cursor:pointer}
+.tb-btn:hover{background:var(--pastel-soft);border-color:var(--accent)}
+.tb-btn.primary{background:var(--primary);color:var(--lily);border-color:var(--primary)}
+.tb-btn.primary:hover{background:var(--primary-2)}
+.tb-bell{position:relative;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-soft);border-radius:7px;color:var(--ink-2);background:#FFF;cursor:pointer}
+.tb-bell::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--crit);border:2px solid #fff}
+
+/* ------- Generic panel ------- */
+.panel{background:var(--paper);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+.panel-h{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line-soft);gap:10px;background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%)}
+.panel-h h3{margin:0;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-0.005em}
+.panel-h .sub{font-size:11.5px;color:var(--ink-3)}
+.panel-h .grow{flex:1}
+.panel-h .lk{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:6px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+
+/* Page header (h1 area, common to non-dashboard screens) */
+.page-h{display:flex;align-items:flex-start;gap:18px;margin-bottom:22px}
+.page-h h1{font-size:24px;letter-spacing:-0.02em;font-weight:600;margin:0 0 4px;color:var(--ink)}
+.page-h .lede{color:var(--ink-3);font-size:13.5px;margin:0;max-width:680px}
+.page-h .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--pastel-soft);font-size:11.5px;color:var(--ink-2);font-weight:500}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+
+/* Section divider */
+.sect{display:flex;align-items:baseline;gap:10px;margin:34px 0 12px}
+.sect h2{margin:0;font-size:14px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-3)}
+.sect .h-line{flex:1;height:1px;background:var(--line-soft)}
+
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Footer */
+.app-foot{margin-top:48px;padding:16px 0;border-top:1px dashed var(--line-soft);display:flex;align-items:center;gap:16px;color:var(--ink-3);font-size:11.5px;font-family:var(--mono)}
+.app-foot .grow{flex:1}

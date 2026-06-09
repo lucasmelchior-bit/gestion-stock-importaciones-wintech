@@ -39,6 +39,7 @@ Orden sugerido:
 | ¿Por qué se decidió X? | `docs/adr/` (Architecture Decision Records) |
 | ¿Qué significa esta palabra del rubro? | `docs/02-glosario.md` |
 | ¿En qué fase vamos? | `docs/08-roadmap.md` |
+| ¿Cómo se ve / cómo debería verse la UI? | `docs/FronEnd_Design/design_handoff_wintech/` (diseño "Jardín de San José", `adr/0005`) |
 
 ## Reglas de oro (no negociables)
 
@@ -54,10 +55,12 @@ Orden sugerido:
 
 ## Stack y cómo correr
 
-- **Stack:** Electron + SQLite (archivo local) + HTML/CSS/JS. Un solo usuario, offline, sin login.
-- **Estado actual:** **Fase 0 (arnés)** — solo documentación y estructura. El código de la app
-  (Electron, Node) se agrega en la **Fase 1**. Ver `README.md` para los pasos de setup/dev/build
-  cuando exista código.
+- **Stack:** Electron + SQLite (`node:sqlite`) + **React + Vite + TypeScript** en el renderer. Un
+  solo usuario, offline, sin login. (Ver `adr/0001`, `0004`, `0006`.)
+- **Estado actual:** **Fase 2 en curso** — se adoptó el diseño "Jardín de San José" como norte
+  (`adr/0005`) y se construyen las pantallas de Productos y Stock sobre un shell React/Vite. Fases
+  0 (arnés) y 1 (esqueleto) completadas. Ver `docs/08-roadmap.md` y `ESTADO.md`. Pasos de
+  setup/dev/build en `README.md`.
 
 ## Contexto de negocio imprescindible
 

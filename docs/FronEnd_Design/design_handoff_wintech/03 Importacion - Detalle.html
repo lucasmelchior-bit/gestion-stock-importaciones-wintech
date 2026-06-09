@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wintech · IMP-2026-005 · Detalle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="wintech-shell.css" />
+<style>
+  /* Hero */
+  .hero{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;padding:22px 26px;display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center;margin-bottom:18px;box-shadow:0 1px 0 rgba(94,90,51,0.03);position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;background:var(--accent)}
+  .hero .glyph{width:64px;height:64px;border-radius:12px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2)}
+  .hero h1{margin:0 0 4px;font-size:28px;font-family:var(--mono);font-weight:600;letter-spacing:-0.01em;color:var(--ink)}
+  .hero .meta{display:flex;gap:14px;align-items:center;color:var(--ink-3);font-size:12.5px}
+  .hero .meta .sep{color:var(--line-2)}
+  .hero .meta .tag{font-size:11px;background:var(--accent);color:var(--ink);padding:2px 9px;border-radius:4px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase}
+  .hero .eta{text-align:right}
+  .hero .eta .lbl{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:4px}
+  .hero .eta .v{font-family:var(--mono);font-size:32px;font-weight:600;color:var(--ink);letter-spacing:-0.01em;line-height:1}
+  .hero .eta .sub{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);margin-top:4px}
+
+  /* Route diagram */
+  .route{background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);border:1px solid var(--line-soft);border-radius:12px;padding:20px 24px;margin-bottom:18px;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+  .route .h{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .route .h h3{margin:0;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-0.005em}
+  .route .h .sub{font-size:11.5px;color:var(--ink-3)}
+  .route .h .grow{flex:1}
+  .route .h .switch{display:flex;align-items:center;gap:8px;padding:6px 11px;background:var(--paper);border:1px solid var(--line-2);border-radius:7px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
+  .route .h .switch b{color:var(--ink);font-weight:600}
+
+  .route-track{display:grid;grid-template-columns:repeat(5, 1fr);gap:0;align-items:start;position:relative;padding:6px 0}
+  .route-stop{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:2;padding:0 8px}
+  .route-stop .pin{width:42px;height:42px;border-radius:12px;background:var(--paper);border:2px solid var(--line-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative}
+  .route-stop.done .pin{background:var(--primary);border-color:var(--primary);color:#fff}
+  .route-stop.active .pin{background:var(--accent);border-color:var(--accent-2);color:var(--ink);box-shadow:0 0 0 4px rgba(245,200,66,0.25)}
+  .route-stop.active .pin::after{content:"";position:absolute;inset:-6px;border-radius:14px;border:2px solid var(--accent-2);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:0.7}50%{opacity:0.2}}
+  .route-stop .name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+  .route-stop.upcoming .name{color:var(--ink-3)}
+  .route-stop .city{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+  .route-stop .date{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:4px;background:var(--paper-2);padding:2px 7px;border-radius:4px;display:inline-block;border:1px solid var(--line-2)}
+  .route-stop.active .date{background:var(--accent);color:var(--ink);font-weight:600;border-color:var(--accent-2)}
+
+  .route-leg{position:absolute;top:21px;height:3px;border-radius:2px;display:flex;align-items:center;justify-content:center;z-index:1}
+  .route-leg .label{position:absolute;top:8px;font-size:10.5px;color:var(--ink-3);background:var(--paper-2);padding:1px 8px;border-radius:4px;font-family:var(--mono);border:1px solid var(--line-2);white-space:nowrap}
+  .route-leg.done{background:var(--primary)}
+  .route-leg.active{background:linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%)}
+  .route-leg.upcoming{background:var(--line-2);border-top:2px dashed var(--paper);border-bottom:none;background-image:repeating-linear-gradient(90deg,var(--line-2) 0,var(--line-2) 4px,transparent 4px,transparent 8px);background-size:8px 100%}
+
+  .route-foot{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px;padding-top:18px;border-top:1px dashed var(--line-2)}
+  .route-foot .stat .lbl{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:4px}
+  .route-foot .stat .v{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink)}
+  .route-foot .stat .sub{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+
+  /* Layout columns */
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+
+  /* Tabs */
+  .tabs{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--line-soft);background:var(--paper);border:1px solid var(--line-soft);border-radius:10px 10px 0 0;border-bottom:none}
+  .tab{padding:11px 18px;font-size:13px;font-weight:500;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px}
+  .tab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--primary);background:var(--paper-2)}
+  .tab .count{font-family:var(--mono);font-size:10.5px;background:var(--paper-2);border:1px solid var(--line-2);color:var(--ink-2);padding:1px 6px;border-radius:4px;font-weight:600}
+
+  .tab-body{background:var(--paper);border:1px solid var(--line-soft);border-top:none;border-radius:0 0 10px 10px;padding:0;box-shadow:0 1px 0 rgba(94,90,51,0.03)}
+
+  /* Forwarder section (legs) */
+  .legs{padding:0}
+  .leg-row{display:grid;grid-template-columns:36px 1.4fr 1.6fr auto;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:13px}
+  .leg-row:last-child{border-bottom:none}
+  .leg-row .stage{width:36px;height:36px;border-radius:8px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2)}
+  .leg-row.done .stage{background:var(--primary);color:#fff}
+  .leg-row.active .stage{background:var(--accent);color:var(--ink)}
+  .leg-row .what{font-weight:600;color:var(--ink)}
+  .leg-row .when{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+  .leg-row .prov-pick{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--paper-2);border:1px solid var(--line-2);border-radius:7px;cursor:pointer;font-size:12.5px}
+  .leg-row .prov-pick .av{width:24px;height:24px;border-radius:5px;background:var(--primary-soft);color:var(--primary);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2)}
+  .leg-row .prov-pick .who{flex:1}
+  .leg-row .prov-pick .who b{display:block;color:var(--ink);font-weight:600}
+  .leg-row .prov-pick .who small{display:block;color:var(--ink-3);font-size:11px;font-family:var(--mono);margin-top:1px}
+  .leg-row .prov-pick:hover{border-color:var(--primary)}
+  .leg-row .cost{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);text-align:right}
+  .leg-row .cost .lbl{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:2px}
+
+  /* Items table */
+  .it-h{display:grid;grid-template-columns:32px 2.4fr 0.8fr 0.8fr 1fr 1fr;gap:10px;padding:11px 18px;background:var(--paper-2);border-bottom:1px solid var(--line-soft);font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;align-items:center}
+  .it-h > span{text-align:right}
+  .it-h > span.l{text-align:left}
+  .it-row{display:grid;grid-template-columns:32px 2.4fr 0.8fr 0.8fr 1fr 1fr;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:13px}
+  .it-row:last-child{border-bottom:none}
+  .it-row .name{font-weight:500;color:var(--ink)}
+  .it-row .sku{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:2px}
+  .it-row .num{font-family:var(--mono);text-align:right;color:var(--ink-2)}
+  .it-row .num.strong{color:var(--ink);font-weight:600}
+
+  /* Right rail */
+  .rail{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+  .stat-row{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;color:var(--ink-2)}
+  .stat-row .v{font-family:var(--mono);font-weight:600;color:var(--ink)}
+  .stat-row.total{border-top:1px dashed var(--line-2);margin-top:8px;padding-top:12px;font-size:14px}
+  .stat-row.total .v{font-size:16px;color:var(--primary)}
+
+  /* Pago progress */
+  .pay-prog{padding:14px 18px;background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);border-bottom:1px solid var(--line-soft)}
+  .pay-prog .top{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .pay-prog .top .pct{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--primary);letter-spacing:-0.01em}
+  .pay-prog .top .lbl{font-size:11.5px;color:var(--ink-3)}
+  .pay-prog .bar{height:6px;background:var(--line-2);border-radius:3px;overflow:hidden}
+  .pay-prog .bar > div{height:100%;background:linear-gradient(90deg, var(--primary) 0%, var(--teal) 100%);border-radius:3px}
+  .pay-prog .legend{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:6px}
+
+  /* Pay schedule */
+  .pay-row{padding:12px 18px;display:grid;grid-template-columns:36px 1fr auto;gap:12px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:12.5px}
+  .pay-row:last-child{border-bottom:none}
+  .pay-row .ic{width:32px;height:32px;border-radius:7px;background:var(--paper-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2)}
+  .pay-row.done .ic{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .pay-row.due .ic{background:var(--accent);color:var(--ink);border-color:var(--accent-2)}
+  .pay-row .what{font-weight:500;color:var(--ink)}
+  .pay-row .when{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:2px}
+  .pay-row .when.crit{color:var(--crit);font-weight:600}
+  .pay-row .amt{font-family:var(--mono);font-weight:600;color:var(--ink);text-align:right;font-size:13px}
+
+  /* Doc list */
+  .doc-row{padding:11px 18px;display:grid;grid-template-columns:30px 1fr auto;gap:10px;border-bottom:1px solid var(--line-soft);align-items:center;font-size:12.5px;cursor:pointer}
+  .doc-row:last-child{border-bottom:none}
+  .doc-row:hover{background:var(--paper-2)}
+  .doc-row .ic-d{width:28px;height:28px;border-radius:6px;background:var(--paper-2);color:var(--ink-2);display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2)}
+  .doc-row.uploaded .ic-d{background:var(--primary-soft);color:var(--primary)}
+  .doc-row .name{font-weight:500;color:var(--ink)}
+  .doc-row .meta{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-top:1px}
+
+  /* Section header inline */
+  .sect-h{padding:14px 18px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);display:flex;align-items:center;gap:10px}
+  .sect-h h3{margin:0;font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-0.005em}
+  .sect-h .sub{font-size:11.5px;color:var(--ink-3)}
+  .sect-h .grow{flex:1}
+  .sect-h .lk{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:6px;background:transparent;color:var(--ink-2);font-size:12px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="wintech-shell.jsx"></script>
+
+<script type="text/babel">
+const STOPS = [
+  { name: "Adopen", city: "Estambul · TR", date: "08 dic 25", state: "done", icon: "factory" },
+  { name: "Embarque", city: "Pto. Estambul · TR", date: "22 dic 25", state: "done", icon: "ship" },
+  { name: "Puerto entrada", city: "Pto. Buenos Aires · AR", date: "10 mar 26", state: "active", icon: "anchor" },
+  { name: "Aduana Córdoba", city: "Córdoba · AR", date: "≈ 18 mar 26", state: "upcoming", icon: "shield" },
+  { name: "Depósito propio", city: "Córdoba · AR", date: "≈ 22 mar 26", state: "upcoming", icon: "warehouse" },
+];
+
+function StopIcon({ icon, size = 18 }){
+  switch (icon) {
+    case "factory": return <Ic size={size}><path d="M3 21V11l5 3V11l5 3V11l5 3V8l3 1v12z"/><path d="M3 21h18"/></Ic>;
+    case "ship": return <IcShip size={size} />;
+    case "anchor": return <IcAnchor size={size} />;
+    case "shield": return <IcShield size={size} />;
+    case "warehouse": return <IcWh size={size} />;
+    default: return <IcBox size={size} />;
+  }
+}
+
+function App(){
+  const [active, setActive] = React.useState("Importaciones");
+  const [tab, setTab] = React.useState("Resumen");
+  const [puerto, setPuerto] = React.useState("Buenos Aires");
+
+  return (
+    <div className="app" data-screen-label="02 Detalle Importacion">
+      <Sidebar active={active} onNav={setActive} />
+      <div className="main">
+        <Topbar
+          crumbs={["Wintech AR", "Importaciones", "IMP-2026-005"]}
+          actions={<>
+            <button className="tb-btn"><IcDoc size={14} /> Documentos</button>
+            <button className="tb-btn primary"><IcCheck size={14} /> Registrar pago</button>
+          </>}
+        />
+
+        <div className="content">
+          {/* Hero */}
+          <div className="hero">
+            <div className="glyph"><IcShip size={28} /></div>
+            <div>
+              <h1>IMP-2026-005</h1>
+              <div className="meta">
+                <span className="tag">En tránsito marítimo</span>
+                <span>Adopen · Estambul → BsAs</span>
+                <span className="sep">·</span>
+                <span>22 ítems · 14.700 kg · USD 142.800 FOB</span>
+                <span className="sep">·</span>
+                <span>Confirmado 08 dic 25</span>
+              </div>
+            </div>
+            <div className="eta">
+              <div className="lbl">ETA Buenos Aires</div>
+              <div className="v">10 mar</div>
+              <div className="sub">en 12 días · −2d vs plan</div>
+            </div>
+          </div>
+
+          {/* Route diagram */}
+          <div className="route">
+            <div className="h">
+              <h3>Ruta de la importación</h3>
+              <span className="sub">5 tramos · ~3 meses puerta a puerta</span>
+              <div className="grow"></div>
+              <div className="switch">
+                Puerto entrada: <b>{puerto}</b>
+                <select value={puerto} onChange={e => setPuerto(e.target.value)} style={{ border: "none", background: "transparent", fontFamily: "inherit", fontWeight: 600, color: "var(--primary)", cursor: "pointer" }}>
+                  <option>Buenos Aires</option>
+                  <option>Montevideo</option>
+                </select>
+                <IcChevD size={11} />
+              </div>
+            </div>
+
+            <div className="route-track">
+              {STOPS.map((s, i) => (
+                <div key={i} className={`route-stop ${s.state}`}>
+                  <div className="pin"><StopIcon icon={s.icon} size={20} /></div>
+                  <div className="name">{s.name}</div>
+                  <div className="city">{s.city}</div>
+                  <div className="date">{s.date}</div>
+                </div>
+              ))}
+              {/* legs */}
+              {STOPS.slice(0, -1).map((s, i) => {
+                const cls = i < 2 ? "done" : i === 2 ? "active" : "upcoming";
+                const labels = ["Marítimo · 14d", "Marítimo · 38d", "Aduana · 8d", "Terrestre · 4d"];
+                const left = `calc(${(i + 0.5) * (100 / 5)}% + 0px)`;
+                const w = `calc(${100 / 5}% - 0px)`;
+                return <div key={i} className={`route-leg ${cls}`} style={{ left, width: w }}><span className="label">{labels[i]}</span></div>;
+              })}
+            </div>
+
+            <div className="route-foot">
+              <Stat lbl="Tiempo total" v="92 días" sub="08 dic → 22 mar" />
+              <Stat lbl="Días transcurridos" v="80 días" sub="87% del recorrido" />
+              <Stat lbl="Tiempo restante" v="12 días" sub="hasta puerto BsAs" />
+              <Stat lbl="Costo logístico" v="USD 14.200" sub="9.9% del FOB" />
+            </div>
+          </div>
+
+          <div className="grid">
+            <div>
+              {/* Tabs */}
+              <div className="tabs">
+                {["Resumen", "Items", "Costos", "Pagos", "Documentos", "Timeline"].map(t => {
+                  const counts = { Items: 22, Pagos: "1/3", Documentos: 5 };
+                  return (
+                    <div key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
+                      {t}{counts[t] && <span className="count">{counts[t]}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="tab-body">
+                {tab === "Resumen" && <>
+                  <div className="sect-h">
+                    <h3>Tramos y proveedores logísticos</h3>
+                    <span className="sub">cada tramo se contrata por separado · click para cambiar forwarder</span>
+                    <div className="grow"></div>
+                    <button className="lk"><IcGear size={11} /> Gestionar</button>
+                  </div>
+                  <div className="legs">
+                    <Leg state="done" stage={1} ic={<IcShip size={16} />} what="Marítimo · Estambul → Buenos Aires" when="22 dic 25 → 04 feb 26 · 44 días" prov="Maersk Line" provCode="MSC-AR-2204" cost="USD 8.400" lbl="Pagado" />
+                    <Leg state="active" stage={2} ic={<IcAnchor size={16} />} what="Estadía y desembarque · Pto. Buenos Aires" when="≈ 10 mar → 14 mar · 4 días" prov="DHL Global Forwarding" provCode="DHL-PIA-08" cost="USD 1.800" lbl="Confirmado" />
+                    <Leg state="upcoming" stage={3} ic={<IcShield size={16} />} what="Despacho aduanero · Córdoba" when="≈ 14 mar → 19 mar · 5 días" prov="Trasladar S.A." provCode="DESPACHANTE-04" cost="USD 2.400" lbl="Estimado" />
+                    <Leg state="upcoming" stage={4} ic={<IcTruck size={16} />} what="Terrestre · BsAs → Córdoba (depósito)" when="≈ 19 mar → 22 mar · 3 días" prov="Andreani Cargas" provCode="AND-CGA-1102" cost="USD 1.600" lbl="Cotizado" />
+                  </div>
+
+                  <div className="sect-h" style={{ borderTop: "1px solid var(--line-soft)" }}>
+                    <h3>Productos destacados</h3>
+                    <span className="sub">5 de 22 items · ver todos en pestaña Items</span>
+                    <div className="grow"></div>
+                  </div>
+                  <div>
+                    <div className="it-h">
+                      <span></span>
+                      <span className="l">Producto</span>
+                      <span>Cant.</span>
+                      <span>kg/u</span>
+                      <span>USD/u FOB</span>
+                      <span>Total</span>
+                    </div>
+                    <ItRow cat="P" name="Marco Wintech 58 Blanco" sku="WT-58-7001" qty={240} kg={1.8} usd={18.40} />
+                    <ItRow cat="P" name="Hoja batiente 58 · refuerzo" sku="WT-58-7012" qty={180} kg={2.1} usd={22.10} />
+                    <ItRow cat="H" name="Cremona oscilobatiente Roto NT" sku="HRJ-CR-0042" qty={150} kg={0.4} usd={41.50} />
+                    <ItRow cat="P" name="Junco soldable 70 · negro EPDM" sku="WT-70-3204" qty={220} kg={0.3} usd={6.20} />
+                    <ItRow cat="H" name="Bisagra carga pesada 80kg" sku="HRJ-BG-1108" qty={90} kg={0.6} usd={14.80} />
+                    <div style={{ padding: "10px 18px", textAlign: "center", fontSize: 12, color: "var(--ink-3)", borderTop: "1px solid var(--line-soft)" }}>
+                      + 17 items más — <span style={{ color: "var(--primary)", cursor: "pointer", fontWeight: 500 }}>ver todos</span>
+                    </div>
+                  </div>
+                </>}
+
+                {tab !== "Resumen" && (
+                  <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--ink-3)" }}>
+                    Pestaña <b style={{ color: "var(--ink)" }}>{tab}</b> · contenido pendiente de mockear
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right rail */}
+            <div className="rail">
+              {/* Pago a Adopen */}
+              <div className="panel">
+                <div className="panel-h">
+                  <h3>Pago a Adopen</h3>
+                  <span className="sub">FOB USD 142.800</span>
+                </div>
+                <div className="pay-prog">
+                  <div className="top">
+                    <span className="pct">42%</span>
+                    <span className="lbl">pagado · resta 58%</span>
+                  </div>
+                  <div className="bar"><div style={{ width: "42%" }}></div></div>
+                  <div className="legend"><span>USD 60.000 pagados</span><span>USD 82.800 pendientes</span></div>
+                </div>
+                <PayRow done what="30% al confirmar" when="paid 10 dic 25" amt="USD 42.840" />
+                <PayRow done what="12% adicional · acuerdo" when="paid 18 ene 26" amt="USD 17.160" />
+                <PayRow due what="40% al embarcar" when="vence 07 mar · en 9d" whenCrit amt="USD 57.120" />
+                <PayRow what="30% contra docs" when="estimado 18 mar" amt="USD 25.680" />
+              </div>
+
+              {/* Costo total estimado */}
+              <div className="panel">
+                <div className="panel-h"><h3>Costo total estimado</h3></div>
+                <div style={{ padding: "14px 18px" }}>
+                  <div className="stat-row"><span>FOB Adopen</span><span className="v">USD 142.800</span></div>
+                  <div className="stat-row"><span>Marítimo Estambul → BsAs</span><span className="v">USD 8.400</span></div>
+                  <div className="stat-row"><span>Estadía + desembarque</span><span className="v">USD 1.800</span></div>
+                  <div className="stat-row"><span>Despacho aduanero</span><span className="v">USD 2.400</span></div>
+                  <div className="stat-row"><span>Terrestre BsAs → Cba</span><span className="v">USD 1.600</span></div>
+                  <div className="stat-row"><span>Aranceles e impuestos</span><span className="v">USD 28.560</span></div>
+                  <div className="stat-row total"><span>Total CIF + impuestos</span><span className="v">USD 185.560</span></div>
+                  <div style={{ fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--mono)", marginTop: 8, textAlign: "right" }}>30% sobre FOB · margen logístico</div>
+                </div>
+              </div>
+
+              {/* Documentos */}
+              <div className="panel">
+                <div className="panel-h"><h3>Documentos</h3><span className="sub">5/8 cargados</span><div className="grow"></div><button className="lk"><IcUp size={11} /> Subir</button></div>
+                <div className="doc-row uploaded"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Factura comercial</div><div className="meta">PDF · 248 KB · Adopen</div></div><IcCheck size={14} style={{ color: "var(--ok)" }} /></div>
+                <div className="doc-row uploaded"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Packing list</div><div className="meta">PDF · 156 KB · 22 items</div></div><IcCheck size={14} style={{ color: "var(--ok)" }} /></div>
+                <div className="doc-row uploaded"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">B/L original</div><div className="meta">PDF · 412 KB · Maersk</div></div><IcCheck size={14} style={{ color: "var(--ok)" }} /></div>
+                <div className="doc-row uploaded"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Certificado origen</div><div className="meta">PDF · 88 KB · TR</div></div><IcCheck size={14} style={{ color: "var(--ok)" }} /></div>
+                <div className="doc-row uploaded"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Póliza seguro</div><div className="meta">PDF · 124 KB</div></div><IcCheck size={14} style={{ color: "var(--ok)" }} /></div>
+                <div className="doc-row"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Despacho a plaza</div><div className="meta" style={{ color: "var(--warn)" }}>pendiente · post-arribo</div></div></div>
+                <div className="doc-row"><div className="ic-d"><IcDoc size={14} /></div><div><div className="name">Liquidación aduanera</div><div className="meta" style={{ color: "var(--warn)" }}>pendiente · post-despacho</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="app-foot">
+            <span>IMP-2026-005 · creado 08 dic 25 por Lucas P.</span>
+            <span>·</span>
+            <span>v0.9 · Jardín de San José</span>
+            <div className="grow"></div>
+            <span>Última actualización · hace 4 horas (sistema · ETA)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ lbl, v, sub }){
+  return (
+    <div className="stat">
+      <div className="lbl">{lbl}</div>
+      <div className="v">{v}</div>
+      <div className="sub">{sub}</div>
+    </div>
+  );
+}
+
+function Leg({ state, stage, ic, what, when, prov, provCode, cost, lbl }){
+  return (
+    <div className={`leg-row ${state}`}>
+      <div className="stage">{ic}</div>
+      <div>
+        <div className="what">{what}</div>
+        <div className="when">{when}</div>
+      </div>
+      <div className="prov-pick">
+        <div className="av">{prov.split(" ").map(w => w[0]).slice(0, 2).join("")}</div>
+        <div className="who"><b>{prov}</b><small>{provCode}</small></div>
+        <IcChevD size={12} style={{ color: "var(--ink-3)" }} />
+      </div>
+      <div className="cost"><div className="lbl">{lbl}</div>{cost}</div>
+    </div>
+  );
+}
+
+function ItRow({ cat, name, sku, qty, kg, usd }){
+  const total = qty * usd;
+  const bg = cat === "P" ? "var(--primary-soft)" : cat === "H" ? "var(--accent-soft)" : "var(--teal-soft)";
+  return (
+    <div className="it-row">
+      <div style={{ width: 32, height: 32, borderRadius: 6, background: bg, color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, fontFamily: "var(--mono)", border: "1px solid var(--line-2)" }}>{cat}</div>
+      <div>
+        <div className="name">{name}</div>
+        <div className="sku">{sku}</div>
+      </div>
+      <div className="num strong">{qty}</div>
+      <div className="num">{kg.toFixed(1)}</div>
+      <div className="num">{usd.toFixed(2)}</div>
+      <div className="num strong">{total.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</div>
+    </div>
+  );
+}
+
+function PayRow({ done, due, what, when, whenCrit, amt }){
+  const cls = done ? "done" : due ? "due" : "";
+  return (
+    <div className={`pay-row ${cls}`}>
+      <div className="ic">{done ? <IcCheck size={14} /> : due ? <IcAlert size={14} /> : <IcClk size={14} />}</div>
+      <div>
+        <div className="what">{what}</div>
+        <div className={`when ${whenCrit ? "crit" : ""}`}>{when}</div>
+      </div>
+      <div className="amt">{amt}</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

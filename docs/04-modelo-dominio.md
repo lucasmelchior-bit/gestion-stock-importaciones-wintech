@@ -4,6 +4,14 @@ Entidades del negocio y cómo se relacionan. El esquema técnico (DDL) está en
 [`../db/schema.sql`](../db/schema.sql) y explicado columna por columna en
 [`09-diccionario-datos.md`](09-diccionario-datos.md).
 
+> **Pendiente de expansión (Fase 2+):** el diseño "Jardín de San José" (`adr/0005`) introduce
+> entidades nuevas que todavía no están modeladas acá: importación enriquecida (timeline de 9
+> estados, costos logísticos, capacidad de contenedor), pago, documento de importación (versionado),
+> proveedor logístico, gasto operativo y auditoría; y campos nuevos en `product` (familia, línea,
+> color, peso, volumen, landed cost, stock objetivo) y vistas derivadas de stock (físico /
+> reservado / disponible / en tránsito). Se incorporan con migraciones append-only cuando llegue su
+> fase. Ver [`FronEnd_Design/diseno.md`](FronEnd_Design/design_handoff_wintech/diseno.md) §6.
+
 ## Entidades
 
 - **supplier (proveedor):** quien le vende a Lucas. Tiene un `default_lead_time_days` (~105).

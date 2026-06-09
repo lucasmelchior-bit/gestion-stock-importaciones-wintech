@@ -1,5 +1,12 @@
 # 01 — Visión
 
+> **Nota de alcance (2026-06-09):** a partir de la Fase 2 el proyecto adopta como norte el
+> **paquete de diseño "Jardín de San José"** (ver `adr/0005` y
+> [`FronEnd_Design/`](../docs/FronEnd_Design/design_handoff_wintech/)), que amplía esta visión con
+> **gestión de importaciones** (timeline, pagos 30/40/30, costo desembarcado), **carga de pedidos
+> por PDF asistida por IA**, **rentabilidad / punto de equilibrio** y más. El núcleo del negocio
+> descrito acá sigue vigente; el alcance se construye de forma incremental.
+
 ## El usuario
 
 **Lucas** es **importador y distribuidor en toda Argentina** de insumos para fabricar aberturas

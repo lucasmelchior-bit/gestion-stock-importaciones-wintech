@@ -15,6 +15,7 @@ La entrada canónica para IAs es [`../AGENTS.md`](../AGENTS.md).
 | 08 | [`08-roadmap.md`](08-roadmap.md) | **Fases del producto, estado actual y qué sigue.** |
 | 09 | [`09-diccionario-datos.md`](09-diccionario-datos.md) | Cada tabla y columna explicada (espejo en prosa de `db/schema.sql`). |
 | — | [`adr/`](adr/) | Architecture Decision Records: por qué se decidió cada cosa. |
+| — | [`FronEnd_Design/`](FronEnd_Design/design_handoff_wintech/) | Diseño "Jardín de San José": sistema visual + spec de pantallas. Norte de UI desde la Fase 2 (`adr/0005`). Empezar por su `diseno.md`. |
 
 ## Convención de los documentos
 

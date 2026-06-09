@@ -3,6 +3,12 @@
 Explicación en prosa de cada tabla y columna. El DDL canónico está en
 [`../db/schema.sql`](../db/schema.sql). Si hay diferencia, **gana `schema.sql`** (y se corrige acá).
 
+> **Pendiente de expansión (Fase 2+):** este diccionario describe el esquema de la Fase 0. La
+> Fase 2 agrega columnas a `product` (`family`, `line`, `color`, `weight_kg`, `volume_m3`,
+> `target_margin_pct`, `landed_cost_usd`, `target_stock`) vía la migración `0002`, y fases
+> siguientes sumarán tablas nuevas del diseño (importaciones, pagos, documentos, etc.). Cada cambio
+> se refleja acá junto con su migración. Ver `adr/0005`.
+
 ## supplier — proveedores
 | Columna | Tipo | Significado |
 |---------|------|-------------|
