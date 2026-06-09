@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS brand (
 );
 
 CREATE TABLE IF NOT EXISTS client (
-    id      INTEGER PRIMARY KEY,
-    name    TEXT    NOT NULL,
-    contact TEXT,
-    notes   TEXT,
-    active  INTEGER NOT NULL DEFAULT 1
+    id            INTEGER PRIMARY KEY,
+    name          TEXT    NOT NULL,
+    contact       TEXT,
+    notes         TEXT,
+    active        INTEGER NOT NULL DEFAULT 1,
+    cuit          TEXT,                          -- agregado en migración 0002
+    payment_terms TEXT                           -- 'cuenta_corriente' | 'anticipado' | ... (0002)
 );
 
 CREATE TABLE IF NOT EXISTS product (
@@ -49,7 +51,16 @@ CREATE TABLE IF NOT EXISTS product (
     lead_time_days INTEGER,                      -- NULL -> usa supplier.default_lead_time_days
     active         INTEGER NOT NULL DEFAULT 1,
     created_at     TEXT,
-    updated_at     TEXT
+    updated_at     TEXT,
+    -- Agregados en migración 0002 (diseño "Jardín de San José"):
+    family            TEXT,                      -- 'perfil' | 'herraje' | 'accesorio'
+    line              TEXT,                      -- línea/sistema, ej. "Wintech 58"
+    color             TEXT,
+    weight_kg         REAL,                      -- peso por unidad de venta (kg)
+    volume_m3         REAL,                      -- volumen por unidad de venta (m³)
+    target_margin_pct REAL,                      -- margen objetivo (%)
+    landed_cost_usd   REAL,                      -- costo desembarcado (al recibir importación)
+    target_stock      REAL NOT NULL DEFAULT 0    -- stock objetivo de reposición
 );
 
 -- ---------------------------------------------------------------------------

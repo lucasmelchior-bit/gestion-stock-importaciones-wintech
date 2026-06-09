@@ -93,6 +93,126 @@ ipcMain.handle('app:info', () => {
   };
 });
 
+// --- Catálogo: productos (FR-1) ---------------------------------------------
+// Sin lógica de negocio (eso vive en src/domain); esto solo lee/escribe la base.
+
+const PRODUCT_SELECT = `
+  SELECT p.*, b.name AS brand_name, s.name AS supplier_name
+  FROM product p
+  LEFT JOIN brand b ON b.id = p.brand_id
+  LEFT JOIN supplier s ON s.id = p.supplier_id
+`;
+
+/** Datos de referencia para los selectores del formulario. */
+ipcMain.handle('catalog:refData', () => ({
+  brands: db.prepare('SELECT id, name FROM brand ORDER BY name').all(),
+  suppliers: db.prepare('SELECT id, name FROM supplier ORDER BY name').all(),
+}));
+
+ipcMain.handle('products:list', () => {
+  return db.prepare(`${PRODUCT_SELECT} ORDER BY p.name`).all();
+});
+
+ipcMain.handle('products:get', (_e, id) => {
+  return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(id);
+});
+
+/** Normaliza y valida la entrada del formulario de producto. */
+function cleanProductInput(p) {
+  const sku = (p.sku ?? '').trim();
+  const name = (p.name ?? '').trim();
+  if (!sku) throw new Error('El SKU es obligatorio.');
+  if (!name) throw new Error('El nombre es obligatorio.');
+  const num = (v) => (v === '' || v === null || v === undefined ? null : Number(v));
+  const family = p.family ?? null;
+  return {
+    sku,
+    name,
+    family,
+    category: family ?? 'accessory', // satisface el NOT NULL legacy de category
+    line: p.line ?? null,
+    color: p.color ?? null,
+    brand_id: p.brand_id ?? null,
+    supplier_id: p.supplier_id ?? null,
+    unit: p.unit ?? 'unit',
+    bar_length_m: num(p.bar_length_m),
+    weight_kg: num(p.weight_kg),
+    volume_m3: num(p.volume_m3),
+    last_cost_usd: num(p.last_cost_usd),
+    sale_price_ars: num(p.sale_price_ars),
+    target_margin_pct: num(p.target_margin_pct),
+    min_stock: num(p.min_stock) ?? 0,
+    safety_stock: num(p.safety_stock) ?? 0,
+    target_stock: num(p.target_stock) ?? 0,
+    lead_time_days: num(p.lead_time_days),
+    active: p.active ? 1 : 0,
+  };
+}
+
+/** Traduce el error de UNIQUE(sku) en un mensaje claro. */
+function runProductWrite(fn) {
+  try {
+    return fn();
+  } catch (err) {
+    if (String(err.message).includes('UNIQUE') && String(err.message).includes('sku')) {
+      throw new Error('Ya existe un producto con ese SKU.');
+    }
+    throw err;
+  }
+}
+
+ipcMain.handle('products:create', (_e, input) => {
+  const p = cleanProductInput(input);
+  const now = new Date().toISOString();
+  return runProductWrite(() => {
+    const info = db
+      .prepare(
+        `INSERT INTO product
+           (sku, name, family, category, line, color, brand_id, supplier_id, unit,
+            bar_length_m, weight_kg, volume_m3, last_cost_usd, sale_price_ars,
+            target_margin_pct, min_stock, safety_stock, target_stock, lead_time_days,
+            active, created_at, updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      )
+      .run(
+        p.sku, p.name, p.family, p.category, p.line, p.color, p.brand_id, p.supplier_id,
+        p.unit, p.bar_length_m, p.weight_kg, p.volume_m3, p.last_cost_usd, p.sale_price_ars,
+        p.target_margin_pct, p.min_stock, p.safety_stock, p.target_stock, p.lead_time_days,
+        p.active, now, now,
+      );
+    return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(Number(info.lastInsertRowid));
+  });
+});
+
+ipcMain.handle('products:update', (_e, id, input) => {
+  const p = cleanProductInput(input);
+  const now = new Date().toISOString();
+  return runProductWrite(() => {
+    db.prepare(
+      `UPDATE product SET
+         sku=?, name=?, family=?, category=?, line=?, color=?, brand_id=?, supplier_id=?,
+         unit=?, bar_length_m=?, weight_kg=?, volume_m3=?, last_cost_usd=?, sale_price_ars=?,
+         target_margin_pct=?, min_stock=?, safety_stock=?, target_stock=?, lead_time_days=?,
+         active=?, updated_at=?
+       WHERE id=?`,
+    ).run(
+      p.sku, p.name, p.family, p.category, p.line, p.color, p.brand_id, p.supplier_id,
+      p.unit, p.bar_length_m, p.weight_kg, p.volume_m3, p.last_cost_usd, p.sale_price_ars,
+      p.target_margin_pct, p.min_stock, p.safety_stock, p.target_stock, p.lead_time_days,
+      p.active, now, id,
+    );
+    return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(id);
+  });
+});
+
+ipcMain.handle('products:toggleActive', (_e, id) => {
+  db.prepare('UPDATE product SET active = 1 - active, updated_at = ? WHERE id = ?').run(
+    new Date().toISOString(),
+    id,
+  );
+  return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(id);
+});
+
 // --- Ciclo de vida -----------------------------------------------------------
 
 app.whenReady().then(() => {

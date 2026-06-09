@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from './shell/Layout';
 import { Dashboard } from './pages/Dashboard';
+import { Productos } from './pages/Productos';
 import { Placeholder } from './components/Placeholder';
 
 // Rutas del diseño "Jardín de San José". Las pantallas aún no implementadas
@@ -13,7 +14,7 @@ export function App() {
         <Route path="/importaciones" element={<Placeholder title="Importaciones" />} />
         <Route path="/pedidos" element={<Placeholder title="Pedidos" />} />
         <Route path="/stock" element={<Placeholder title="Stock & Alertas" />} />
-        <Route path="/productos" element={<Placeholder title="Productos" />} />
+        <Route path="/productos" element={<Productos />} />
         <Route path="/proveedores-adopen" element={<Placeholder title="Proveedores Adopen" />} />
         <Route
           path="/proveedores-logisticos"

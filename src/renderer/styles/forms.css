@@ -1,0 +1,129 @@
+/* Modal + formularios. Estilo "Jardín de San José". */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 38, 24, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  z-index: 50;
+  overflow-y: auto;
+}
+.modal {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  width: 680px;
+  max-width: 100%;
+  box-shadow: 0 20px 60px rgba(31, 38, 24, 0.25);
+  overflow: hidden;
+}
+.modal::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+}
+.modal-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);
+}
+.modal-h h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.modal-h .grow {
+  flex: 1;
+}
+.modal-h .x {
+  border: 1px solid var(--line-soft);
+  background: var(--paper);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1;
+}
+.modal-body {
+  padding: 18px;
+  max-height: 64vh;
+  overflow-y: auto;
+}
+.modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--paper-2);
+}
+.modal-foot .grow {
+  flex: 1;
+}
+.modal-err {
+  color: var(--crit);
+  font-size: 12.5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 16px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field.col-2 {
+  grid-column: span 2;
+}
+.field label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.field input,
+.field select {
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fff;
+  color: var(--ink);
+}
+.field input:focus,
+.field select:focus {
+  outline: 0;
+  border-color: var(--primary);
+}
+.field .hint {
+  font-size: 10.5px;
+  color: var(--ink-3);
+}
+.form-section {
+  grid-column: span 2;
+  margin-top: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--primary);
+}
