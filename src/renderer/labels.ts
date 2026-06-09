@@ -73,5 +73,13 @@ export const labels = {
     secStock: 'Stock y reposición',
     optSinMarca: '— Sin marca —',
     optSinProveedor: '— Sin proveedor —',
+    // Imagen
+    colImagen: 'Img',
+    fImagen: 'Imagen del producto',
+    imgElegir: 'Elegir imagen',
+    imgCambiar: 'Cambiar imagen',
+    imgQuitar: 'Quitar',
+    imgHint: 'PNG, JPG, WEBP o GIF. Se guarda en tu equipo.',
+    imgVerGrande: 'Ver imagen ampliada',
   },
 };

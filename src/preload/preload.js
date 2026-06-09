@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('api', {
   catalog: {
     refData: () => ipcRenderer.invoke('catalog:refData'),
   },
+  // Imágenes de producto.
+  images: {
+    pick: () => ipcRenderer.invoke('images:pick'),
+  },
   products: {
     list: () => ipcRenderer.invoke('products:list'),
     get: (id) => ipcRenderer.invoke('products:get', id),

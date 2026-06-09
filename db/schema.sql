@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS product (
     volume_m3         REAL,                      -- volumen por unidad de venta (m³)
     target_margin_pct REAL,                      -- margen objetivo (%)
     landed_cost_usd   REAL,                      -- costo desembarcado (al recibir importación)
-    target_stock      REAL NOT NULL DEFAULT 0    -- stock objetivo de reposición
+    target_stock      REAL NOT NULL DEFAULT 0,   -- stock objetivo de reposición
+    image_filename    TEXT                       -- nombre del archivo en userData/product-images/ (0003)
 );
 
 -- ---------------------------------------------------------------------------

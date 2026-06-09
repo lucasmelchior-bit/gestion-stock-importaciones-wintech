@@ -1,0 +1,95 @@
+/* Miniaturas en listados, visor ampliado (lightbox) y campo de imagen del form. */
+
+/* Miniatura en tablas */
+.thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+  object-fit: cover;
+  border: 1px solid var(--line-soft);
+  background: var(--paper-2);
+  cursor: zoom-in;
+  display: block;
+}
+.thumb-ph {
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+  border: 1px dashed var(--line-2);
+  background: var(--paper-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+}
+
+/* Lightbox (visor ampliado) */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 40, 24, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  padding: 32px;
+  cursor: zoom-out;
+}
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 88vh;
+  border-radius: 12px;
+  border: 3px solid var(--lily);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  object-fit: contain;
+  background: var(--paper);
+}
+.lightbox-cap {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--lily);
+  font-size: 13px;
+  font-family: var(--mono);
+}
+
+/* Campo de imagen en el formulario */
+.img-field {
+  grid-column: span 2;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.img-field .preview {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--line-soft);
+  background: var(--paper-2);
+  cursor: zoom-in;
+}
+.img-field .preview-ph {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  border: 1px dashed var(--line-2);
+  background: var(--paper-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  flex: 0 0 96px;
+}
+.img-field .img-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.img-field .img-hint {
+  font-size: 10.5px;
+  color: var(--ink-3);
+}

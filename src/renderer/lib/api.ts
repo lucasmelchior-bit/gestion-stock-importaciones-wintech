@@ -30,6 +30,7 @@ export type Product = {
   safety_stock: number;
   target_stock: number;
   lead_time_days: number | null;
+  image_filename: string | null;
   active: number;
   created_at: string | null;
   updated_at: string | null;
@@ -57,6 +58,7 @@ export type ProductInput = {
   safety_stock?: number | string | null;
   target_stock?: number | string | null;
   lead_time_days?: number | string | null;
+  image_filename?: string | null;
   active?: boolean | number;
 };
 
@@ -68,6 +70,9 @@ export type WintechApi = {
   catalog: {
     refData: () => Promise<RefData>;
   };
+  images: {
+    pick: () => Promise<{ filename: string } | null>;
+  };
   products: {
     list: () => Promise<Product[]>;
     get: (id: number) => Promise<Product | undefined>;
@@ -76,6 +81,11 @@ export type WintechApi = {
     toggleActive: (id: number) => Promise<Product>;
   };
 };
+
+/** URL servible por el protocolo interno para una imagen de producto. */
+export function imageUrl(filename: string | null | undefined): string | null {
+  return filename ? `app-image://img/${encodeURIComponent(filename)}` : null;
+}
 
 declare global {
   interface Window {

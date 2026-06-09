@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { Modal } from '../components/Modal';
 import { ProductForm } from '../components/ProductForm';
-import { IcPlus, IcSrch } from '../shell/icons';
-import { api, type Product, type ProductInput, type RefData } from '../lib/api';
+import { ImageLightbox } from '../components/ImageLightbox';
+import { IcPlus, IcSrch, IcInfo } from '../shell/icons';
+import { api, imageUrl, type Product, type ProductInput, type RefData } from '../lib/api';
 import { familyLabel, unitLabel, fmtNum } from '../lib/catalog';
 import { labels } from '../labels';
 
@@ -26,6 +27,7 @@ export function Productos() {
   const [editing, setEditing] = useState<Product | 'new' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [lightbox, setLightbox] = useState<{ src: string; caption: string } | null>(null);
 
   async function reload() {
     setProducts(await api.products.list());
@@ -134,6 +136,7 @@ export function Productos() {
           <table className="dtable">
             <thead>
               <tr>
+                <th aria-label={L.colImagen} />
                 <th>{L.colProducto}</th>
                 <th>{L.colFamilia}</th>
                 <th>{L.colMarca}</th>
@@ -149,6 +152,26 @@ export function Productos() {
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.id} className={p.active ? '' : 'inactive'}>
+                  <td>
+                    {p.image_filename ? (
+                      <img
+                        className="thumb"
+                        src={imageUrl(p.image_filename)!}
+                        alt={p.name}
+                        title={L.imgVerGrande}
+                        onClick={() =>
+                          setLightbox({
+                            src: imageUrl(p.image_filename)!,
+                            caption: `${p.name} · ${p.sku}`,
+                          })
+                        }
+                      />
+                    ) : (
+                      <div className="thumb-ph">
+                        <IcInfo size={16} />
+                      </div>
+                    )}
+                  </td>
                   <td>
                     <div className="name">{p.name}</div>
                     <div className="meta">
@@ -223,6 +246,14 @@ export function Productos() {
             formId="product-form"
           />
         </Modal>
+      )}
+
+      {lightbox && (
+        <ImageLightbox
+          src={lightbox.src}
+          caption={lightbox.caption}
+          onClose={() => setLightbox(null)}
+        />
       )}
     </>
   );

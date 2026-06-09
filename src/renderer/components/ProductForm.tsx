@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import type { Product, ProductInput, RefData } from '../lib/api';
+import { api, imageUrl, type Product, type ProductInput, type RefData } from '../lib/api';
 import { FAMILIES, UNITS } from '../lib/catalog';
+import { IcInfo } from '../shell/icons';
 import { labels } from '../labels';
 
 const L = labels.products;
@@ -28,6 +29,7 @@ function toForm(p?: Product): FormState {
     safety_stock: s(p?.safety_stock),
     target_stock: s(p?.target_stock),
     lead_time_days: s(p?.lead_time_days),
+    image_filename: s(p?.image_filename),
     active: p ? p.active === 1 : true,
   };
 }
@@ -44,6 +46,11 @@ export function ProductForm({ product, refData, onSubmit, formId }: Props) {
   const [form, setForm] = useState<FormState>(() => toForm(product));
   const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
   const str = (k: string) => form[k] as string;
+
+  async function pickImage() {
+    const res = await api.images.pick();
+    if (res) set('image_filename', res.filename);
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,6 +73,7 @@ export function ProductForm({ product, refData, onSubmit, formId }: Props) {
       safety_stock: str('safety_stock'),
       target_stock: str('target_stock'),
       lead_time_days: str('lead_time_days'),
+      image_filename: str('image_filename') || null,
       active: form.active as boolean,
     };
     onSubmit(input);
@@ -73,6 +81,30 @@ export function ProductForm({ product, refData, onSubmit, formId }: Props) {
 
   return (
     <form id={formId} className="form-grid" onSubmit={submit}>
+      <div className="img-field">
+        {str('image_filename') ? (
+          <img className="preview" src={imageUrl(str('image_filename'))!} alt={L.fImagen} />
+        ) : (
+          <div className="preview-ph">
+            <IcInfo size={22} />
+          </div>
+        )}
+        <div className="img-actions">
+          <label style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>
+            {L.fImagen}
+          </label>
+          <button type="button" className="tb-btn" onClick={pickImage}>
+            {str('image_filename') ? L.imgCambiar : L.imgElegir}
+          </button>
+          {str('image_filename') && (
+            <button type="button" className="tb-btn" onClick={() => set('image_filename', '')}>
+              {L.imgQuitar}
+            </button>
+          )}
+          <span className="img-hint">{L.imgHint}</span>
+        </div>
+      </div>
+
       <div className="field">
         <label>{L.fSku} *</label>
         <input value={str('sku')} onChange={(e) => set('sku', e.target.value)} required />

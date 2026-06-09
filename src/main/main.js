@@ -11,8 +11,24 @@
 // =============================================================================
 
 const path = require('node:path');
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { app, BrowserWindow, ipcMain, session, dialog, protocol } = require('electron');
 const { openDatabase, runMigrations } = require('./db');
+
+// El esquema interno app-image:// (sirve las imágenes de producto desde la
+// carpeta de datos) debe declararse privilegiado ANTES de que la app esté lista.
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app-image', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+const IMAGE_MIME = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
 
 /** @type {import('node:sqlite').DatabaseSync | null} */
 let db = null;
@@ -30,6 +46,28 @@ function resolveMigrationsDir() {
   return path.join(app.getAppPath(), 'db', 'migrations');
 }
 
+/** Carpeta donde se guardan las imágenes de producto (datos del usuario). */
+function imagesDir() {
+  return path.join(app.getPath('userData'), 'product-images');
+}
+
+/** Registra el protocolo app-image:// para servir miniaturas/imágenes locales. */
+function installImageProtocol() {
+  protocol.handle('app-image', async (request) => {
+    try {
+      const url = new URL(request.url);
+      // basename evita path traversal (../). Solo se sirve desde imagesDir.
+      const name = path.basename(decodeURIComponent(url.pathname));
+      const file = path.join(imagesDir(), name);
+      const data = await fs.promises.readFile(file);
+      const mime = IMAGE_MIME[path.extname(name).toLowerCase()] || 'application/octet-stream';
+      return new Response(data, { headers: { 'Content-Type': mime } });
+    } catch {
+      return new Response('', { status: 404 });
+    }
+  });
+}
+
 function initDatabase() {
   db = openDatabase(resolveDbPath());
   const applied = runMigrations(db, resolveMigrationsDir());
@@ -42,10 +80,10 @@ function initDatabase() {
 function installCsp() {
   const csp = isDev
     ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-      "style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; " +
+      "style-src 'self' 'unsafe-inline'; img-src 'self' data: app-image:; font-src 'self' data:; " +
       "connect-src 'self' http://localhost:5173 ws://localhost:5173 ws://127.0.0.1:5173"
     : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data:; font-src 'self' data:; connect-src 'self'";
+      "img-src 'self' data: app-image:; font-src 'self' data:; connect-src 'self'";
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
@@ -109,6 +147,25 @@ ipcMain.handle('catalog:refData', () => ({
   suppliers: db.prepare('SELECT id, name FROM supplier ORDER BY name').all(),
 }));
 
+/**
+ * Abre el selector de archivos para elegir una imagen, la copia a la carpeta de
+ * imágenes con un nombre único y devuelve ese nombre (o null si se cancela).
+ */
+ipcMain.handle('images:pick', async () => {
+  const res = await dialog.showOpenDialog({
+    title: 'Elegir imagen del producto',
+    properties: ['openFile'],
+    filters: [{ name: 'Imágenes', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'] }],
+  });
+  if (res.canceled || res.filePaths.length === 0) return null;
+  const src = res.filePaths[0];
+  const ext = path.extname(src).toLowerCase();
+  const filename = `${crypto.randomUUID()}${ext}`;
+  fs.mkdirSync(imagesDir(), { recursive: true });
+  fs.copyFileSync(src, path.join(imagesDir(), filename));
+  return { filename };
+});
+
 ipcMain.handle('products:list', () => {
   return db.prepare(`${PRODUCT_SELECT} ORDER BY p.name`).all();
 });
@@ -145,6 +202,7 @@ function cleanProductInput(p) {
     safety_stock: num(p.safety_stock) ?? 0,
     target_stock: num(p.target_stock) ?? 0,
     lead_time_days: num(p.lead_time_days),
+    image_filename: p.image_filename ?? null,
     active: p.active ? 1 : 0,
   };
 }
@@ -171,14 +229,14 @@ ipcMain.handle('products:create', (_e, input) => {
            (sku, name, family, category, line, color, brand_id, supplier_id, unit,
             bar_length_m, weight_kg, volume_m3, last_cost_usd, sale_price_ars,
             target_margin_pct, min_stock, safety_stock, target_stock, lead_time_days,
-            active, created_at, updated_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            image_filename, active, created_at, updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
       .run(
         p.sku, p.name, p.family, p.category, p.line, p.color, p.brand_id, p.supplier_id,
         p.unit, p.bar_length_m, p.weight_kg, p.volume_m3, p.last_cost_usd, p.sale_price_ars,
         p.target_margin_pct, p.min_stock, p.safety_stock, p.target_stock, p.lead_time_days,
-        p.active, now, now,
+        p.image_filename, p.active, now, now,
       );
     return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(Number(info.lastInsertRowid));
   });
@@ -193,13 +251,13 @@ ipcMain.handle('products:update', (_e, id, input) => {
          sku=?, name=?, family=?, category=?, line=?, color=?, brand_id=?, supplier_id=?,
          unit=?, bar_length_m=?, weight_kg=?, volume_m3=?, last_cost_usd=?, sale_price_ars=?,
          target_margin_pct=?, min_stock=?, safety_stock=?, target_stock=?, lead_time_days=?,
-         active=?, updated_at=?
+         image_filename=?, active=?, updated_at=?
        WHERE id=?`,
     ).run(
       p.sku, p.name, p.family, p.category, p.line, p.color, p.brand_id, p.supplier_id,
       p.unit, p.bar_length_m, p.weight_kg, p.volume_m3, p.last_cost_usd, p.sale_price_ars,
       p.target_margin_pct, p.min_stock, p.safety_stock, p.target_stock, p.lead_time_days,
-      p.active, now, id,
+      p.image_filename, p.active, now, id,
     );
     return db.prepare(`${PRODUCT_SELECT} WHERE p.id = ?`).get(id);
   });
@@ -218,6 +276,7 @@ ipcMain.handle('products:toggleActive', (_e, id) => {
 app.whenReady().then(() => {
   initDatabase();
   installCsp();
+  installImageProtocol();
   createWindow();
 
   app.on('activate', () => {

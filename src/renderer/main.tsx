@@ -17,6 +17,7 @@ import './styles/shell.css';
 import './styles/components.css';
 import './styles/tables.css';
 import './styles/forms.css';
+import './styles/images.css';
 
 import { App } from './App';
 
