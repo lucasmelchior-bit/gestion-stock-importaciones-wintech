@@ -6,7 +6,7 @@
 > conversado y decidido. Leelo entero antes de continuar. Resume el negocio, el objetivo del
 > software, las decisiones tomadas, el plan completo, y **qué falta hacer** (sección "PRÓXIMO PASO").
 
-_Última actualización de este registro: 2026-06-02 (cierre de Fase 1)._
+_Última actualización de este registro: 2026-06-09 (Fase 2 en curso: Productos + imágenes; carga de catálogo pendiente)._
 
 ---
 
@@ -145,51 +145,73 @@ Plata: `last_cost_usd` y `sale_price_ars` separados; la matemática de stock es 
 
 ## 7. >>> PRÓXIMO PASO (acá retomamos) <<<
 
-**Estado actual (2026-06-02):** ✅ **Fase 1 (esqueleto) COMPLETADA.** (Fase 0/arnés ya estaba
-cerrada y subida a `main`.) Commiteada en la rama **`feat/fase-1-esqueleto`** y pusheada a GitHub.
+**Estado actual (2026-06-09):** 🚧 **Fase 2 EN CURSO** en la rama
+**`feat/fase-2-productos-stock`** (commits locales; ver abajo). Fases 0 y 1 ✅ completadas.
+El plan aprobado de la Fase 2 está en
+`C:\Users\Usuario\.claude\plans\abstract-tickling-flurry.md`.
 
-**Pendientes operativos para retomar mañana (2026-06-03):**
+### Lo hecho hoy (Fase 2, commiteado en `feat/fase-2-productos-stock`)
+- **Hito 0 — Fundación** (`818a1e4`): se adoptó el diseño **"Jardín de San José"** como norte
+  (**ADR-0005**) y **React + Vite + TS** en el renderer (**ADR-0006**). Se versionó el diseño en
+  `docs/FronEnd_Design/`, se reconciliaron los docs canónicos y se confirmó **herrajes = Accado**
+  (el diseño decía "Roto NT" por error).
+- **Hito 1 — Shell** (`8e4e68c`): renderer reconstruido con React + Vite + TS; shell del design
+  system (Sidebar 3 grupos + Sistema, Topbar, tokens, íconos, router HashRouter). Fuentes Inter +
+  JetBrains Mono **locales** (offline). `npm run dev` levanta Vite + Electron concurrentes.
+- **Hito 2 — Productos** (`5af151e`): ABM de catálogo (migración **0002** amplía `product` con
+  family/line/color/peso/volumen/margen/landed_cost/target_stock). IPC `products:*` +
+  `catalog:refData` en `main.js`, pantalla **Productos** (tabla densa + filtros + alta/edición en
+  modal). `scripts/seed.js` carga 10 productos de ejemplo.
+- **Paleta verde** (`8e14d62`): se corrigió a la paleta VERDE de `diseno.md §4.1` (confirmada por
+  Lucas), no la beige de `wintech-shell.css`.
+- **Imágenes de producto** (`34104ab`): migración **0003** (`image_filename`); las imágenes se
+  guardan como archivos en `userData/product-images/` y se sirven con el protocolo interno
+  `app-image://`; `images:pick` (diálogo) + miniatura en la tabla + visor ampliado (lightbox).
 
-- 🔀 **Abrir el Pull Request** de `feat/fase-1-esqueleto` → `main` (o mergear) para integrar la
-  Fase 1. Link: https://github.com/lucasmelchior-bit/gestion-stock-importaciones-wintech/pull/new/feat/fase-1-esqueleto
-- 🎨 **Revisar el diseño de frontend** que trajo Lucas, sin versionar todavía:
-  `docs/FronEnd_Design/` y `docs/GESTION de Stock e Importaciones.zip` (probables mockups de la UI;
-  insumo para la Fase 2). Quedaron fuera del commit a propósito.
-- ⚙️ **Nota de entorno:** la instalación de Electron en esta PC quedó resuelta a mano (el
-  `postinstall` de npm dejó `dist/` incompleto; se extrajo el zip del cache con `tar` y se creó
-  `node_modules/electron/path.txt` con el texto `electron.exe`). Si algún día se borra
-  `node_modules` y `npm run dev` falla con `ENOENT path.txt`, repetir ese arreglo.
+### EN CURSO al cortar: cargar el catálogo real desde Excel
+Lucas pidió cargar perfiles (Wintech) y herrajes (Accado) desde sus listas de precios. **No se
+cargó nada todavía.** Archivos:
+- Perfiles: `C:\Users\Usuario\OneDrive\Documentos\Wintech\Lista de Precios\2026\Mayo\Lista de Precios Wintech Abril 2026 CON PESOS v3.xlsx`
+- Herrajes: `C:\Users\Usuario\OneDrive\Documentos\Accado\...\Febrero 26\` (un Excel "con Imágenes",
+  un Excel "completa" y un PDF).
 
-**Lo que se hizo en Fase 1:**
+**Estructura Wintech** (hojas: `Linea 60`, `Linea 70`, `Linea Corrediza W232`, `Junquillos`,
+`Auxiliares`). Columnas por bloque: **col2**=IMAGEN, **col3**=NOMBRE, **col4**=CODIGO, **col5**=COLOR,
+**col6**=USD x metro, **col7**=kg/metro, **col8**=Categoria, **col9**=Linea. Cada color es una fila.
 
-1. ✅ Node.js **24.16.0 LTS** instalado; `.nvmrc` actualizado a `24`.
-2. ✅ Scaffolding de Electron: `package.json` con scripts (`dev`, `start`, `migrate`, `build`),
-   y los tres procesos:
-   - `src/main/main.js` — ventana, ciclo de vida, abre la base y registra IPC (`app:info`).
-   - `src/main/db.js` — capa de datos: abre SQLite y corre migraciones append-only (idempotente),
-     con tabla de control `schema_migrations`. **Agnóstica de Electron** (testeable en Node puro).
-   - `src/preload/preload.js` — `contextBridge` expone `window.api` (única superficie IPC).
-   - `src/renderer/` — `index.html` + `renderer.js` + `labels.js` (textos en español centralizados)
-     + `styles.css`. Pantalla de bienvenida que muestra versiones, ruta de la base y conteos.
-3. ✅ **Motor SQLite: `node:sqlite` integrado** (no `better-sqlite3`) → sin dependencias nativas
-   ni compiladores. Ver **ADR-0004**. La migración `0001_init.sql` corre OK (`npm run migrate`
-   como smoke test, y también al abrir la app).
-4. ✅ `npm run dev` abre la ventana sin errores. `npm run build` empaqueta un ejecutable funcional
-   en `dist/win-unpacked/` (verificado: arranca standalone).
+**Decisiones de mapeo confirmadas con Lucas (2026-06-09):**
+- `USD x METRO` = **precio de venta** (en USD). → hay que agregar **`sale_price_usd`** al modelo
+  (migración **0004**); el schema actual solo tiene `sale_price_ars`.
+- Perfiles se manejan **por barra de 6 m** → `unit='bar'`, `bar_length_m=6`,
+  `sale_price_usd = USD/m × 6`, `weight_kg = kg/m × 6`.
+- **Datos primero, fotos después** (las imágenes embebidas se resuelven en un segundo paso).
 
-**Pendiente menor (no bloquea):** el **instalador NSIS** (`.exe` instalable) requiere activar el
-**Modo de Desarrollador de Windows** (Configuración → Privacidad y seguridad → Para
-desarrolladores) para que el empaquetador cree los symlinks que necesita. Se completa en Fase 8.
+**Bloqueantes / pendientes de la carga:**
+1. 🔑 **Regla de normalización del código (SKU) de perfiles** — Lucas la va a explicar; es la
+   referencia permanente (ver memoria `normalizacion-codigo-perfiles`). Necesaria para SKUs únicos
+   (varios colores comparten prefijo `P.K.`). **No importar perfiles sin esta regla.**
+2. 📕 **Accado no se deja leer con `exceljs`** (los Excel con imágenes embebidas rompen el lector:
+   `Cannot read properties of undefined (reading 'anchors')`). Opciones: extraer datos del **PDF**,
+   o leer el Excel descomprimiéndolo (los `.xlsx` son ZIP) sin pasar por exceljs.
+3. 🖼️ **Imágenes embebidas**: extraer de `xl/media/` del ZIP del Excel y asociarlas por los anchors
+   de `xl/drawings/`. Segundo paso, tras cargar los datos.
+4. Herramienta: **`exceljs` ya está instalado** (devDependency). Falta escribir el importador real
+   (`scripts/import-catalog.js`).
 
-**Lo que hay que hacer al retomar → FASE 2 (datos maestros + ABM, FR-1/FR-7):**
+### Pendientes operativos arrastrados
+- 🔀 PRs sin abrir: `feat/fase-1-esqueleto` y `feat/fase-2-productos-stock` → `main`.
+- 🧱 Instalador NSIS (`.exe`) requiere **Modo de Desarrollador de Windows** (symlinks). Fase 8.
+- ⚙️ Si se borra `node_modules` y `npm run dev` falla con `ENOENT path.txt`: la instalación de
+  Electron quedó resuelta a mano (extraer el zip del cache con `tar` + crear
+  `node_modules/electron/path.txt` con `electron.exe`).
 
-1. ABM de **productos** (perfiles por barra; herrajes/ruedas por unidad — ver glosario y unidades),
-   **proveedores**, **marcas** y **clientes**.
-2. Patrón a seguir: el renderer pide por IPC (`window.api.*`) → handler en `main` → consulta a la
-   base vía `db`. Sumar canales nuevos en `preload.js` (documentar cada uno) y textos en
-   `labels.js`. **Sin lógica de negocio en main**: cuando aparezca cálculo, va a `src/domain/`.
-3. Si el esquema cambia, **nueva migración** `db/migrations/0002_*.sql` (append-only; nunca editar
-   la 0001) y reflejarlo en `docs/09-diccionario-datos.md`.
+### Próximos pasos sugeridos
+1. Pedir a Lucas la **regla del código de perfiles** y guardarla en la memoria correspondiente.
+2. Migración **0004**: `sale_price_usd` en `product` (+ UI: campo y columna de precio USD).
+3. Escribir `scripts/import-catalog.js`: parsear Wintech (por barra ×6), normalizar SKU, upsert.
+4. Resolver lectura de **Accado** (PDF o ZIP) y cargar herrajes.
+5. Segundo paso: **imágenes** embebidas → extraer y asociar.
+6. Retomar el roadmap: **Hito 3 — Stock & Alertas** (quedó pendiente del plan de Fase 2).
 
-> Toda la información de diseño está en `docs/` (empezar por `AGENTS.md` → `docs/00-INDICE.md`).
-> El plan original sigue en `C:\Users\Usuario\.claude\plans\el-sistema-debe-ir-greedy-biscuit.md`.
+> Diseño y reglas en `docs/` (empezar por `AGENTS.md` → `docs/00-INDICE.md` y
+> `docs/FronEnd_Design/design_handoff_wintech/diseno.md`).
